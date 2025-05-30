@@ -1,4 +1,10 @@
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 const useCrudUser = () => {
   const docRef = collection(db, "users");
@@ -24,7 +30,12 @@ const useCrudUser = () => {
     });
   };
 
-  return { addUser, getUsers };
+  const deleteUser = async (user) => {
+    const docRef = doc(db, "users", user.id);
+    await deleteDoc(docRef);
+  };
+
+  return { addUser, getUsers, deleteUser };
 };
 
 export default useCrudUser;

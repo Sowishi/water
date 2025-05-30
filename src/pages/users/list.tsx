@@ -13,6 +13,7 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
   HiDocumentDownload,
+  HiEye,
   HiHome,
   HiOutlineExclamationCircle,
   HiOutlinePencilAlt,
@@ -21,6 +22,21 @@ import {
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  connection: string;
+  meterID: string;
+  address: string;
+  profilePic: string;
+}
+
+interface DeleteUserModalProps {
+  user: User;
+}
 
 const UserListPage: FC = function () {
   return (
@@ -219,17 +235,6 @@ const AddUserModal: FC = function () {
 };
 
 const AllUsersTable: FC = function () {
-  interface User {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    connection: string;
-    meterID: string;
-    address: string;
-    profilePic: string;
-  }
-
   const [users, setUsers] = useState<User[]>([]);
   const { getUsers } = useCrudUser();
 
@@ -294,7 +299,7 @@ const AllUsersTable: FC = function () {
                   <Table.Cell>
                     <div className="flex items-center gap-x-3 whitespace-nowrap">
                       <EditUserModal />
-                      <DeleteUserModal />
+                      <DeleteUserModal user={user} />
                     </div>
                   </Table.Cell>
                 </Table.Row>
@@ -314,13 +319,13 @@ const EditUserModal: FC = function () {
     <>
       <Button color="primary" onClick={() => setOpen(true)}>
         <div className="flex items-center gap-x-2">
-          <HiOutlinePencilAlt className="text-lg" />
-          Edit user
+          <HiEye className="text-lg" />
+          View User
         </div>
       </Button>
       <Modal onClose={() => setOpen(false)} show={isOpen}>
         <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
-          <strong>Edit user</strong>
+          <strong>View User</strong>
         </Modal.Header>
         <Modal.Body>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -416,9 +421,10 @@ const EditUserModal: FC = function () {
   );
 };
 
-const DeleteUserModal: FC = function () {
+const DeleteUserModal: FC<DeleteUserModalProps> = ({ user }) => {
   const [isOpen, setOpen] = useState(false);
 
+  const { deleteUser } = useCrudUser();
   return (
     <>
       <Button color="failure" onClick={() => setOpen(true)}>
@@ -438,7 +444,7 @@ const DeleteUserModal: FC = function () {
               Are you sure you want to delete this user?
             </p>
             <div className="flex items-center gap-x-3">
-              <Button color="failure" onClick={() => setOpen(false)}>
+              <Button color="failure" onClick={() => deleteUser(user)}>
                 Yes, I'm sure
               </Button>
               <Button color="gray" onClick={() => setOpen(false)}>
