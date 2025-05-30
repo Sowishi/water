@@ -55,7 +55,7 @@ const ExampleSidebar: FC = function () {
                     : ""
                 }
               >
-                Products
+                Billing Management
               </Sidebar.Item>
               <Sidebar.Item
                 href="/users/list"
@@ -66,13 +66,7 @@ const ExampleSidebar: FC = function () {
                     : ""
                 }
               >
-                Users list
-              </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-in" icon={HiLogin}>
-                Sign in
-              </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
-                Sign up
+                Customer List
               </Sidebar.Item>
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
@@ -80,19 +74,17 @@ const ExampleSidebar: FC = function () {
                 href="https://github.com/themesberg/flowbite-react/"
                 icon={HiClipboard}
               >
-                Docs
+                Generate Reports
               </Sidebar.Item>
-              <Sidebar.Item
-                href="https://flowbite-react.com/"
-                icon={HiCollection}
-              >
-                Components
-              </Sidebar.Item>
+
               <Sidebar.Item
                 href="https://github.com/themesberg/flowbite-react/issues"
                 icon={HiInformationCircle}
               >
-                Help
+                Account Setiings
+              </Sidebar.Item>
+              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
+                Logout
               </Sidebar.Item>
             </Sidebar.ItemGroup>
           </Sidebar.Items>
