@@ -5,6 +5,7 @@ import {
   Checkbox,
   Label,
   Modal,
+  Select,
   Table,
   TextInput,
 } from "flowbite-react";
@@ -19,6 +20,7 @@ import {
   HiTrash,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
+import useAddUser from "../../hooks/useAddUser";
 
 const UserListPage: FC = function () {
   return (
@@ -81,21 +83,22 @@ const UserListPage: FC = function () {
 };
 
 const AddUserModal: FC = function () {
-  const [isOpen, setOpen] = useState(false);
-
   type FormsType = {
     [key: string]: string;
   };
 
+  const [isOpen, setOpen] = useState(false);
   const [forms, setForms] = useState<FormsType>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     meterID: "",
-    connection: "",
+    connection: "Resedential",
     address: "",
   });
+
+  const { addUser } = useAddUser();
 
   const handleChange = (value: string, name: string) => {
     const formsCopy = { ...forms };
@@ -103,7 +106,11 @@ const AddUserModal: FC = function () {
     setForms(formsCopy);
   };
 
-  console.log(forms);
+  const handleSubmit = () => {
+    // Handle form submission logic here
+    addUser(forms);
+    setOpen(false);
+  };
 
   return (
     <>
@@ -179,12 +186,13 @@ const AddUserModal: FC = function () {
             <div>
               <Label htmlFor="company">Connection</Label>
               <div className="mt-1">
-                <TextInput
-                  id="company"
+                <Select
                   name="connection"
-                  placeholder="Somewhere"
                   onChange={(e) => handleChange(e.target.value, e.target.name)}
-                />
+                >
+                  <option value="Resedential">Resedential</option>
+                  <option value="Comercial">Comercial</option>
+                </Select>
               </div>
             </div>
             <div>
@@ -201,7 +209,7 @@ const AddUserModal: FC = function () {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button color="primary" onClick={() => setOpen(false)}>
+          <Button color="primary" onClick={() => handleSubmit()}>
             Add user
           </Button>
         </Modal.Footer>
