@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "flowbite-react";
 import type { FC } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   HiDocumentDownload,
   HiHome,
@@ -20,7 +20,7 @@ import {
   HiTrash,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
-import useAddUser from "../../hooks/useAddUser";
+import useCrudUser from "../../hooks/useCrudUser";
 
 const UserListPage: FC = function () {
   return (
@@ -98,7 +98,7 @@ const AddUserModal: FC = function () {
     address: "",
   });
 
-  const { addUser } = useAddUser();
+  const { addUser } = useCrudUser();
 
   const handleChange = (value: string, name: string) => {
     const formsCopy = { ...forms };
@@ -219,65 +219,89 @@ const AddUserModal: FC = function () {
 };
 
 const AllUsersTable: FC = function () {
+  interface User {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    connection: string;
+    meterID: string;
+    address: string;
+    profilePic: string;
+  }
+
+  const [users, setUsers] = useState<User[]>([]);
+  const { getUsers } = useCrudUser();
+
+  useEffect(() => {
+    getUsers(setUsers);
+  }, []);
+
   return (
     <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
       <Table.Head className="bg-gray-100 dark:bg-gray-700">
-        <Table.HeadCell>
-          <Label htmlFor="select-all" className="sr-only">
-            Select all
-          </Label>
-          <Checkbox id="select-all" name="select-all" />
-        </Table.HeadCell>
         <Table.HeadCell>Name</Table.HeadCell>
-        <Table.HeadCell>Position</Table.HeadCell>
-        <Table.HeadCell>Country</Table.HeadCell>
+        <Table.HeadCell>Meter ID</Table.HeadCell>
+        <Table.HeadCell>Address</Table.HeadCell>
+        <Table.HeadCell>Connection</Table.HeadCell>
         <Table.HeadCell>Status</Table.HeadCell>
         <Table.HeadCell>Actions</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-        <Table.Row className="hover:bg-gray-100 dark:hover:bg-gray-700">
-          <Table.Cell className="w-4 p-4">
-            <div className="flex items-center">
-              <Checkbox aria-describedby="checkbox-1" id="checkbox-1" />
-              <label htmlFor="checkbox-1" className="sr-only">
-                checkbox
-              </label>
-            </div>
-          </Table.Cell>
-          <Table.Cell className="mr-12 flex items-center space-x-6 whitespace-nowrap p-4 lg:mr-0">
-            <img
-              className="h-10 w-10 rounded-full"
-              src="/images/users/neil-sims.png"
-              alt="Neil Sims avatar"
-            />
-            <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
-              <div className="text-base font-semibold text-gray-900 dark:text-white">
-                Neil Sims
-              </div>
-              <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                neil.sims@flowbite.com
-              </div>
-            </div>
-          </Table.Cell>
-          <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
-            Front-end developer
-          </Table.Cell>
-          <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
-            United States
-          </Table.Cell>
-          <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
-            <div className="flex items-center">
-              <div className="mr-2 h-2.5 w-2.5 rounded-full bg-green-400"></div>{" "}
-              Active
-            </div>
-          </Table.Cell>
-          <Table.Cell>
-            <div className="flex items-center gap-x-3 whitespace-nowrap">
-              <EditUserModal />
-              <DeleteUserModal />
-            </div>
-          </Table.Cell>
-        </Table.Row>
+        {users.length >= 1 && (
+          <>
+            {users.map((user) => {
+              return (
+                <Table.Row
+                  key={user.id}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Table.Cell className="mr-12 flex items-center space-x-6 whitespace-nowrap p-4 lg:mr-0">
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={user.profilePic}
+                      alt="Neil Sims avatar"
+                    />
+                    <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                      <div className="text-base font-semibold text-gray-900 dark:text-white">
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                        {user.email}
+                      </div>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
+                    {user.meterID}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
+                    <div
+                      className="max-w-[200px] truncate"
+                      title={user.address}
+                    >
+                      {user.address}
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
+                    {user.connection}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
+                    <div className="flex items-center">
+                      <div className="mr-2 h-2.5 w-2.5 rounded-full bg-green-400"></div>{" "}
+                      Active
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex items-center gap-x-3 whitespace-nowrap">
+                      <EditUserModal />
+                      <DeleteUserModal />
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </>
+        )}
       </Table.Body>
     </Table>
   );
