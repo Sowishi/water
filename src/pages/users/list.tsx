@@ -90,6 +90,11 @@ const AddUserModal: FC = function () {
   const [forms, setForms] = useState<FormsType>({
     firstName: "",
     lastName: "",
+    email: "",
+    phone: "",
+    meterID: "",
+    connection: "",
+    address: "",
   });
 
   const handleChange = (value: string, name: string) => {
@@ -97,6 +102,8 @@ const AddUserModal: FC = function () {
     formsCopy[name] = value;
     setForms(formsCopy);
   };
+
+  console.log(forms);
 
   return (
     <>
@@ -116,8 +123,8 @@ const AddUserModal: FC = function () {
               <Label htmlFor="firstName">First name</Label>
               <div className="mt-1">
                 <TextInput
-                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                   id="firstName"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                   name="firstName"
                   placeholder="Bonnie"
                 />
@@ -126,7 +133,12 @@ const AddUserModal: FC = function () {
             <div>
               <Label htmlFor="lastName">Last name</Label>
               <div className="mt-1">
-                <TextInput id="lastName" name="lastName" placeholder="Green" />
+                <TextInput
+                  id="lastName"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                  name="lastName"
+                  placeholder="Green"
+                />
               </div>
             </div>
             <div>
@@ -135,6 +147,7 @@ const AddUserModal: FC = function () {
                 <TextInput
                   id="email"
                   name="email"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                   placeholder="example@company.com"
                   type="email"
                 />
@@ -146,6 +159,7 @@ const AddUserModal: FC = function () {
                 <TextInput
                   id="phone"
                   name="phone"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                   placeholder="e.g., +(12)3456 789"
                   type="tel"
                 />
@@ -156,8 +170,9 @@ const AddUserModal: FC = function () {
               <div className="mt-1">
                 <TextInput
                   id="department"
-                  name="department"
+                  name="meterID"
                   placeholder="Development"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
@@ -166,8 +181,9 @@ const AddUserModal: FC = function () {
               <div className="mt-1">
                 <TextInput
                   id="company"
-                  name="company"
+                  name="connection"
                   placeholder="Somewhere"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
@@ -176,8 +192,9 @@ const AddUserModal: FC = function () {
               <div className="mt-1">
                 <TextInput
                   id="company"
-                  name="company"
+                  name="address"
                   placeholder="Somewhere"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
