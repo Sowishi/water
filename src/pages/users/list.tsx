@@ -16,6 +16,7 @@ import {
   HiHome,
   HiOutlineExclamationCircle,
   HiOutlinePencilAlt,
+  HiEye,
   HiPlus,
   HiTrash,
 } from "react-icons/hi";
@@ -315,6 +316,7 @@ const AllUsersTable: FC = function () {
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-x-3 whitespace-nowrap">
+                      <ViewUserModal user={user} />
                       <EditUserModal user={user} />
                       <DeleteUserModal user={user} />
                     </div>
@@ -326,6 +328,65 @@ const AllUsersTable: FC = function () {
         )}
       </Table.Body>
     </Table>
+  );
+};
+
+interface ViewUserModalProps {
+  user: User;
+}
+
+const ViewUserModal: FC<ViewUserModalProps> = function ({ user }) {
+  const [isOpen, setOpen] = useState(false);
+  return (
+    <>
+      <Button color="gray" onClick={() => setOpen(true)} size="xs">
+        <div className="flex items-center gap-x-2">
+          <HiEye className="text-lg" />
+          View
+        </div>
+      </Button>
+      <Modal onClose={() => setOpen(false)} show={isOpen}>
+        <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
+          <strong>Customer Details</strong>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <Label value="Name" />
+              <p className="font-medium">
+                {user.firstName} {user.lastName}
+              </p>
+            </div>
+            <div>
+              <Label value="Email" />
+              <p className="font-medium">{user.email}</p>
+            </div>
+            {user.phone && (
+              <div>
+                <Label value="Phone" />
+                <p className="font-medium">{user.phone}</p>
+              </div>
+            )}
+            <div>
+              <Label value="Meter ID" />
+              <p className="font-medium">{user.meterID}</p>
+            </div>
+            <div>
+              <Label value="Connection" />
+              <p className="font-medium">{user.connection}</p>
+            </div>
+            <div>
+              <Label value="Address" />
+              <p className="font-medium">{user.address}</p>
+            </div>
+            <div>
+              <Label value="Status" />
+              <p className="font-medium">{user.status}</p>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 };
 
