@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 const useCrudUser = () => {
@@ -11,7 +12,7 @@ const useCrudUser = () => {
 
   const addUser = async (user) => {
     const profilePic = `https://avatar.iran.liara.run/public/?username=[${user.firstName}]`;
-    addDoc(docRef, { ...user, profilePic })
+    addDoc(docRef, { ...user, profilePic, status: user.status ?? "active" })
       .then((docRef) => {
         console.log("User added with ID: ", docRef.id);
       })
@@ -35,7 +36,12 @@ const useCrudUser = () => {
     await deleteDoc(docRef);
   };
 
-  return { addUser, getUsers, deleteUser };
+  const updateUser = async (userId, data) => {
+    const userDoc = doc(db, "users", userId);
+    await updateDoc(userDoc, data);
+  };
+
+  return { addUser, getUsers, deleteUser, updateUser };
 };
 
 export default useCrudUser;

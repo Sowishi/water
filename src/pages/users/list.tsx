@@ -112,6 +112,7 @@ const AddUserModal: FC = function () {
     meterID: "",
     connection: "Resedential",
     address: "",
+    status: "active",
   });
 
   const { addUser } = useCrudUser();
@@ -236,7 +237,7 @@ const AddUserModal: FC = function () {
 
 const AllUsersTable: FC = function () {
   const [users, setUsers] = useState<User[]>([]);
-  const { getUsers } = useCrudUser();
+  const { getUsers, updateUser } = useCrudUser();
 
   useEffect(() => {
     getUsers(setUsers);
@@ -250,6 +251,7 @@ const AllUsersTable: FC = function () {
         <Table.HeadCell>Address</Table.HeadCell>
         <Table.HeadCell>Connection</Table.HeadCell>
         <Table.HeadCell>Status</Table.HeadCell>
+        <Table.HeadCell>Change status</Table.HeadCell>
         <Table.HeadCell>Actions</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
@@ -292,9 +294,23 @@ const AllUsersTable: FC = function () {
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
                     <div className="flex items-center">
-                      <div className="mr-2 h-2.5 w-2.5 rounded-full bg-green-400"></div>{" "}
-                      Active
+                      <div
+                        className={`mr-2 h-2.5 w-2.5 rounded-full ${user.status === "active" ? "bg-green-400" : "bg-red-400"}`}
+                      ></div>
+                      {user.status === "active" ? "Active" : "Disconnected"}
                     </div>
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
+                    <Button
+                      size="xs"
+                      onClick={() =>
+                        updateUser(user.id, {
+                          status: user.status === "active" ? "disconnected" : "active",
+                        })
+                      }
+                    >
+                      {user.status === "active" ? "Disconnect" : "Activate"}
+                    </Button>
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-x-3 whitespace-nowrap">
