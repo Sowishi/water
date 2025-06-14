@@ -13,7 +13,6 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
   HiDocumentDownload,
-  HiEye,
   HiHome,
   HiOutlineExclamationCircle,
   HiOutlinePencilAlt,
@@ -28,9 +27,11 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
   connection: string;
   meterID: string;
   address: string;
+  status: string;
   profilePic: string;
 }
 
@@ -314,7 +315,7 @@ const AllUsersTable: FC = function () {
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex items-center gap-x-3 whitespace-nowrap">
-                      <EditUserModal />
+                      <EditUserModal user={user} />
                       <DeleteUserModal user={user} />
                     </div>
                   </Table.Cell>
@@ -328,20 +329,66 @@ const AllUsersTable: FC = function () {
   );
 };
 
-const EditUserModal: FC = function () {
+interface EditUserModalProps {
+  user: User;
+}
+
+const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
+  type FormsType = {
+    [key: string]: string;
+  };
+
   const [isOpen, setOpen] = useState(false);
+  const [forms, setForms] = useState<FormsType>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    meterID: "",
+    connection: "Resedential",
+    address: "",
+    status: "active",
+  });
+
+  const { updateUser } = useCrudUser();
+
+  useEffect(() => {
+    if (isOpen) {
+      setForms({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone ?? "",
+        meterID: user.meterID,
+        connection: user.connection,
+        address: user.address,
+        status: user.status,
+      });
+    }
+  }, [isOpen]);
+
+  const handleChange = (value: string, name: string) => {
+    const formsCopy = { ...forms };
+    formsCopy[name] = value;
+    setForms(formsCopy);
+  };
+
+  const handleSubmit = () => {
+    updateUser(user.id, forms);
+    setOpen(false);
+  };
 
   return (
     <>
-      <Button color="primary" onClick={() => setOpen(true)}>
+      <Button color="primary" onClick={() => setOpen(true)} size="xs">
         <div className="flex items-center gap-x-2">
-          <HiEye className="text-lg" />
-          View User
+          <HiOutlinePencilAlt className="text-lg" />
+          Edit
         </div>
       </Button>
       <Modal onClose={() => setOpen(false)} show={isOpen}>
         <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
-          <strong>View User</strong>
+          <strong>Edit User</strong>
         </Modal.Header>
         <Modal.Body>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -351,14 +398,20 @@ const EditUserModal: FC = function () {
                 <TextInput
                   id="firstName"
                   name="firstName"
-                  placeholder="Bonnie"
+                  value={forms.firstName}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
             <div>
               <Label htmlFor="lastName">Last name</Label>
               <div className="mt-1">
-                <TextInput id="lastName" name="lastName" placeholder="Green" />
+                <TextInput
+                  id="lastName"
+                  name="lastName"
+                  value={forms.lastName}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                />
               </div>
             </div>
             <div>
@@ -367,8 +420,9 @@ const EditUserModal: FC = function () {
                 <TextInput
                   id="email"
                   name="email"
-                  placeholder="example@company.com"
                   type="email"
+                  value={forms.email}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
@@ -378,58 +432,53 @@ const EditUserModal: FC = function () {
                 <TextInput
                   id="phone"
                   name="phone"
-                  placeholder="e.g., +(12)3456 789"
                   type="tel"
+                  value={forms.phone}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="department">Department</Label>
+              <Label htmlFor="meterID">Meter ID</Label>
               <div className="mt-1">
                 <TextInput
-                  id="department"
-                  name="department"
-                  placeholder="Development"
+                  id="meterID"
+                  name="meterID"
+                  value={forms.meterID}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="company">Company</Label>
+              <Label htmlFor="connection">Connection</Label>
               <div className="mt-1">
-                <TextInput
-                  id="company"
-                  name="company"
-                  placeholder="Somewhere"
-                />
+                <Select
+                  id="connection"
+                  name="connection"
+                  value={forms.connection}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                >
+                  <option value="Resedential">Resedential</option>
+                  <option value="Comercial">Comercial</option>
+                </Select>
               </div>
             </div>
             <div>
-              <Label htmlFor="passwordCurrent">Current password</Label>
+              <Label htmlFor="address">Address</Label>
               <div className="mt-1">
                 <TextInput
-                  id="passwordCurrent"
-                  name="passwordCurrent"
-                  placeholder="••••••••"
-                  type="password"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="passwordNew">New password</Label>
-              <div className="mt-1">
-                <TextInput
-                  id="passwordNew"
-                  name="passwordNew"
-                  placeholder="••••••••"
-                  type="password"
+                  id="address"
+                  name="address"
+                  value={forms.address}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
               </div>
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button color="primary" onClick={() => setOpen(false)}>
-            Save all
+          <Button color="primary" onClick={handleSubmit}>
+            Save
           </Button>
         </Modal.Footer>
       </Modal>

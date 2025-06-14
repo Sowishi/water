@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Badge, Dropdown, Table, useTheme } from "flowbite-react";
 import type { FC } from "react";
+import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import NavbarSidebarLayout from "../layouts/navbar-sidebar";
+import useCrudBill from "../hooks/useCrudBill";
 
 const DashboardPage: FC = function () {
   return (
@@ -13,6 +15,9 @@ const DashboardPage: FC = function () {
           <LatestTransactions />
         </div>
         <LatestCustomers />
+        <div className="my-6">
+          <PaymentsOverview />
+        </div>
         <div className="my-6">
           <AcquisitionOverview />
         </div>
@@ -387,6 +392,92 @@ const LatestCustomers: FC = function () {
           </a>
         </div>
       </div>
+    </div>
+  );
+};
+
+interface Bill {
+  amount: string;
+  paidDate?: string;
+}
+
+const PaymentsOverview: FC = function () {
+  const [bills, setBills] = useState<Bill[]>([]);
+  const { getBills } = useCrudBill();
+  const { mode } = useTheme();
+  const isDarkTheme = mode === "dark";
+  const labelColor = isDarkTheme ? "#93ACAF" : "#6B7280";
+  const borderColor = isDarkTheme ? "#374151" : "#F3F4F6";
+
+  useEffect(() => {
+    getBills(setBills);
+  }, []);
+
+  const totals = new Array(12).fill(0);
+  bills.forEach((b) => {
+    if (b.paidDate) {
+      const month = new Date(b.paidDate).getMonth();
+      totals[month] += parseFloat(b.amount) || 0;
+    }
+  });
+
+  const options: ApexCharts.ApexOptions = {
+    chart: { type: "bar", fontFamily: "Inter, sans-serif", toolbar: { show: false } },
+    xaxis: {
+      categories: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      labels: {
+        style: {
+          colors: [labelColor],
+          fontSize: "14px",
+          fontWeight: 500,
+        },
+      },
+      axisBorder: { color: borderColor },
+      axisTicks: { color: borderColor },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: [labelColor],
+          fontSize: "14px",
+        },
+      },
+    },
+    colors: ["#1C64F2"],
+    grid: {
+      show: true,
+      borderColor: borderColor,
+      strokeDashArray: 1,
+      padding: { left: 35, bottom: 15 },
+    },
+  };
+
+  const series = [
+    {
+      name: "Payments",
+      data: totals,
+    },
+  ];
+
+  return (
+    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 sm:p-6 xl:p-8">
+      <h3 className="mb-4 text-xl font-bold leading-none text-gray-900 dark:text-white">
+        Payments Overview
+      </h3>
+      <Chart options={options} series={series} type="bar" height={350} />
     </div>
   );
 };
