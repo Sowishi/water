@@ -31,11 +31,20 @@ interface BillModalProps {
 
 const BillingPage: FC = function () {
   const [users, setUsers] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const { getUsers } = useCrudUser();
 
   useEffect(() => {
     getUsers(setUsers);
   }, []);
+
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      user.meterID?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <NavbarSidebarLayout isFooter={false}>
@@ -54,9 +63,18 @@ const BillingPage: FC = function () {
         </div>
       </div>
 
+      <div className="mb-4 px-4 sm:px-6 lg:px-8">
+        <TextInput
+          placeholder="Search by name or meter ID"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
+
       <div className="mt-4 px-4 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800">
-          <BillingUsersTable users={users} />
+          <BillingUsersTable users={filteredUsers} />
         </div>
       </div>
     </NavbarSidebarLayout>
@@ -102,7 +120,6 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
     setPrevReading("");
     setCurrentReading("");
   };
-
 
   return (
     <>
@@ -188,12 +205,12 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
             </Table.Head>
             <Table.Body className="text-sm">
               {bills.map((bill) => (
-                  <Table.Row key={bill.id}>
-                    <Table.Cell>{bill.month}</Table.Cell>
-                    <Table.Cell>{bill.prevReading}</Table.Cell>
-                    <Table.Cell>{bill.currentReading}</Table.Cell>
-                    <Table.Cell>${bill.amount}</Table.Cell>
-                    <Table.Cell>{bill.deadline}</Table.Cell>
+                <Table.Row key={bill.id}>
+                  <Table.Cell>{bill.month}</Table.Cell>
+                  <Table.Cell>{bill.prevReading}</Table.Cell>
+                  <Table.Cell>{bill.currentReading}</Table.Cell>
+                  <Table.Cell>${bill.amount}</Table.Cell>
+                  <Table.Cell>{bill.deadline}</Table.Cell>
                   <Table.Cell>
                     {bill.paidDate ? (
                       <span className="text-green-600">
@@ -312,7 +329,8 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
           key={user.id}
           className="hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white">
+          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white items-center mr-2 justify-start flex">
+            <img className="w-[30px]" src={user.profilePic} alt="" />
             {user.firstName} {user.lastName}
           </Table.Cell>
           <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white">
@@ -328,7 +346,7 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
               {user.status === "active" ? "Active" : "Disconnected"}
             </div>
           </Table.Cell>
-          <Table.Cell className="p-4 space-x-2">
+          <Table.Cell className="p-4 space-x-2 flex">
             <BillModal userId={user.id} />
             <PayBillingModal userId={user.id} />
           </Table.Cell>
