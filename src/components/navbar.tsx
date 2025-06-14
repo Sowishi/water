@@ -11,7 +11,10 @@ const ExampleNavbar: FC = function () {
               <img alt="" src="/images/logo.png" className="mr-3 h-6 sm:h-8" />
               <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
                 Water District
-                <span className="text-xs"> Villanueva, Misamis Oriental</span>
+                <span className="text-xs ml-3">
+                  {" "}
+                  Villanueva, Misamis Oriental
+                </span>
               </span>
             </Navbar.Brand>
           </div>

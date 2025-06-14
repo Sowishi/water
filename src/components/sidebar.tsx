@@ -2,9 +2,11 @@ import { Sidebar, TextInput } from "flowbite-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
+  HiChartBar,
   HiChartPie,
   HiClipboard,
   HiCollection,
+  HiCurrencyDollar,
   HiInformationCircle,
   HiLogin,
   HiPencil,
@@ -48,7 +50,7 @@ const ExampleSidebar: FC = function () {
               </Sidebar.Item>
               <Sidebar.Item
                 href="/e-commerce/products"
-                icon={HiShoppingBag}
+                icon={HiChartBar}
                 className={
                   "/e-commerce/products" === currentPage
                     ? "bg-gray-100 dark:bg-gray-700"
