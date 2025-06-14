@@ -18,6 +18,8 @@ interface Bill {
   id: string;
   userId: string;
   month: string;
+  prevReading: number;
+  currentReading: number;
   amount: string;
   deadline: string;
   paidDate?: string;
@@ -65,6 +67,8 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [month, setMonth] = useState("January");
+  const [prevReading, setPrevReading] = useState("");
+  const [currentReading, setCurrentReading] = useState("");
   const [amount, setAmount] = useState("");
   const [deadline, setDeadline] = useState("");
   const { getBillsByUser, addBill, deleteBill, updateBill } = useCrudBill();
@@ -76,22 +80,34 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const prev = parseFloat(prevReading) || 0;
+    const curr = parseFloat(currentReading) || 0;
+    const consumption = Math.max(curr - prev, 0);
+    setAmount(consumption.toString());
+  }, [prevReading, currentReading]);
+
   const handleAdd = () => {
-    addBill({ userId, month, amount, deadline, paidDate: "" });
+    addBill({
+      userId,
+      month,
+      prevReading: Number(prevReading),
+      currentReading: Number(currentReading),
+      amount,
+      deadline,
+      paidDate: "",
+    });
     updateUser(userId, { status: "disconnected" });
     setAmount("");
+    setPrevReading("");
+    setCurrentReading("");
   };
 
-  const handleMarkPaid = (billId: string) => {
-    const date = new Date().toISOString().split("T")[0];
-    updateBill(billId, { paidDate: date });
-    updateUser(userId, { status: "active" });
-  };
 
   return (
     <>
       <Button size="xs" onClick={() => setOpen(true)}>
-        Manage Bills
+        View Billing
       </Button>
       <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
         <Modal.Header>Monthly Bills</Modal.Header>
@@ -126,12 +142,24 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
               </select>
             </div>
             <div>
-              <Label htmlFor="amount" value="Amount" />
+              <Label htmlFor="prev" value="Prev Reading" />
               <TextInput
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                id="prev"
+                value={prevReading}
+                onChange={(e) => setPrevReading(e.target.value)}
               />
+            </div>
+            <div>
+              <Label htmlFor="current" value="Current Reading" />
+              <TextInput
+                id="current"
+                value={currentReading}
+                onChange={(e) => setCurrentReading(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="amount" value="Amount" />
+              <TextInput id="amount" value={amount} readOnly />
             </div>
             <div>
               <Label htmlFor="deadline" value="Deadline" />
@@ -151,6 +179,8 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
           <Table hoverable striped>
             <Table.Head>
               <Table.HeadCell>Month</Table.HeadCell>
+              <Table.HeadCell>Prev Reading</Table.HeadCell>
+              <Table.HeadCell>Current Reading</Table.HeadCell>
               <Table.HeadCell>Amount</Table.HeadCell>
               <Table.HeadCell>Deadline</Table.HeadCell>
               <Table.HeadCell>Status</Table.HeadCell>
@@ -158,10 +188,12 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
             </Table.Head>
             <Table.Body className="text-sm">
               {bills.map((bill) => (
-                <Table.Row key={bill.id}>
-                  <Table.Cell>{bill.month}</Table.Cell>
-                  <Table.Cell>${bill.amount}</Table.Cell>
-                  <Table.Cell>{bill.deadline}</Table.Cell>
+                  <Table.Row key={bill.id}>
+                    <Table.Cell>{bill.month}</Table.Cell>
+                    <Table.Cell>{bill.prevReading}</Table.Cell>
+                    <Table.Cell>{bill.currentReading}</Table.Cell>
+                    <Table.Cell>${bill.amount}</Table.Cell>
+                    <Table.Cell>{bill.deadline}</Table.Cell>
                   <Table.Cell>
                     {bill.paidDate ? (
                       <span className="text-green-600">
@@ -172,11 +204,6 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
                     )}
                   </Table.Cell>
                   <Table.Cell className="space-x-2">
-                    {!bill.paidDate && (
-                      <Button size="xs" onClick={() => handleMarkPaid(bill.id)}>
-                        Mark Paid
-                      </Button>
-                    )}
                     <Button
                       color="failure"
                       size="xs"
@@ -198,6 +225,78 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
 interface BillingUsersTableProps {
   users: any[];
 }
+
+interface PayBillingModalProps {
+  userId: string;
+}
+
+const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
+  const [isOpen, setOpen] = useState(false);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [billId, setBillId] = useState("");
+  const [date, setDate] = useState("");
+  const { getBillsByUser, updateBill } = useCrudBill();
+  const { updateUser } = useCrudUser();
+
+  useEffect(() => {
+    if (isOpen) {
+      getBillsByUser(userId, setBills);
+    }
+  }, [isOpen]);
+
+  const unpaidBills = bills.filter((b) => !b.paidDate);
+
+  const handlePay = () => {
+    if (billId && date) {
+      updateBill(billId, { paidDate: date });
+      updateUser(userId, { status: "active" });
+      setOpen(false);
+      setDate("");
+      setBillId("");
+    }
+  };
+
+  return (
+    <>
+      <Button size="xs" color="success" onClick={() => setOpen(true)}>
+        Pay Billing
+      </Button>
+      <Modal show={isOpen} onClose={() => setOpen(false)}>
+        <Modal.Header>Pay Billing</Modal.Header>
+        <Modal.Body>
+          <div className="mb-4">
+            <Label htmlFor="bill" value="Bill" />
+            <select
+              id="bill"
+              className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+              value={billId}
+              onChange={(e) => setBillId(e.target.value)}
+            >
+              <option value="">Select Bill</option>
+              {unpaidBills.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.month}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="date" value="Paid Date" />
+            <TextInput
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handlePay}>Confirm</Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+};
 
 const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
   <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
@@ -229,8 +328,9 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
               {user.status === "active" ? "Active" : "Disconnected"}
             </div>
           </Table.Cell>
-          <Table.Cell className="p-4">
+          <Table.Cell className="p-4 space-x-2">
             <BillModal userId={user.id} />
+            <PayBillingModal userId={user.id} />
           </Table.Cell>
         </Table.Row>
       ))}
