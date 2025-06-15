@@ -21,6 +21,7 @@ import {
   HiTrash,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
+import { Link } from "react-router-dom";
 import useCrudUser from "../../hooks/useCrudUser";
 
 interface User {
@@ -47,13 +48,13 @@ const UserListPage: FC = function () {
         <div className="mb-1 w-full">
           <div className="mb-4">
             <Breadcrumb className="mb-4">
-              <Breadcrumb.Item href="#">
+              <Breadcrumb.Item as={Link} to="/dashboard">
                 <div className="flex items-center gap-x-3">
                   <HiHome className="text-xl" />
                   <span className="dark:text-white">Home</span>
                 </div>
               </Breadcrumb.Item>
-              <Breadcrumb.Item href="/users/list">Users</Breadcrumb.Item>
+              <Breadcrumb.Item as={Link} to="/users/list">Users</Breadcrumb.Item>
               <Breadcrumb.Item>List</Breadcrumb.Item>
             </Breadcrumb>
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">

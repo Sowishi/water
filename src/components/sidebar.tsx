@@ -1,5 +1,6 @@
 import { Sidebar, TextInput } from "flowbite-react";
 import type { FC } from "react";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   HiChartBar,
@@ -44,7 +45,8 @@ const ExampleSidebar: FC = function () {
             <Sidebar.ItemGroup>
               {!isMeter && (
                 <Sidebar.Item
-                  href="/dashboard"
+                  as={Link}
+                  to="/dashboard"
                   icon={HiChartPie}
                   className={
                     "/dashboard" === currentPage
@@ -56,7 +58,8 @@ const ExampleSidebar: FC = function () {
                 </Sidebar.Item>
               )}
               <Sidebar.Item
-                href="/billing"
+                as={Link}
+                to="/billing"
                 icon={HiChartBar}
                 className={
                   "/billing" === currentPage
@@ -68,7 +71,8 @@ const ExampleSidebar: FC = function () {
               </Sidebar.Item>
               {!isMeter && (
                 <Sidebar.Item
-                  href="/users/list"
+                  as={Link}
+                  to="/users/list"
                   icon={HiUsers}
                   className={
                     "/users/list" === currentPage
@@ -96,7 +100,8 @@ const ExampleSidebar: FC = function () {
                   Account Setiings
                 </Sidebar.Item>
                 <Sidebar.Item
-                  href="/"
+                  as={Link}
+                  to="/"
                   icon={HiPencil}
                   onClick={() => localStorage.removeItem("role")}
                 >
@@ -107,7 +112,8 @@ const ExampleSidebar: FC = function () {
             {isMeter && (
               <Sidebar.ItemGroup>
                 <Sidebar.Item
-                  href="/"
+                  as={Link}
+                  to="/"
                   icon={HiPencil}
                   onClick={() => localStorage.removeItem("role")}
                 >

@@ -2,10 +2,12 @@
 import { useState } from "react";
 import { Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
 import type { FC, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../../../public/images/logo.png";
 
 const SignInPage: FC = function () {
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,11 +18,11 @@ const SignInPage: FC = function () {
 
     if (email === "teller@gmail.com" && password === "teller123") {
       localStorage.setItem("role", "teller");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
       setError("");
     } else if (email === "meterman@gmail.com" && password === "meter123") {
       localStorage.setItem("role", "meter");
-      window.location.href = "/billing";
+      navigate("/billing");
       setError("");
     } else {
       setError("Invalid email or password.");
