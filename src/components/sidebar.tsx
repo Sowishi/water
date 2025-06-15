@@ -44,10 +44,12 @@ const ExampleSidebar: FC = function () {
             <Sidebar.ItemGroup>
               {!isMeter && (
                 <Sidebar.Item
-                  href="/"
+                  href="/dashboard"
                   icon={HiChartPie}
                   className={
-                    "/" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
+                    "/dashboard" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
                   }
                 >
                   Dashboard
