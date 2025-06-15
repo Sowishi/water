@@ -296,7 +296,7 @@ const LatestTransactions: FC = function () {
                           : ""}
                       </Table.Cell>
                       <Table.Cell className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900 dark:text-white">
-                        ${b.amount}
+                        ₱{b.amount}
                       </Table.Cell>
                       <Table.Cell className="flex whitespace-nowrap p-4">
                         <Badge color="success">Completed</Badge>
