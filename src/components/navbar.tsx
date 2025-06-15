@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Button, Navbar } from "flowbite-react";
 import ThemeToggle from "./theme-toggle";
+import { Link } from "react-router-dom";
 
 const ExampleNavbar: FC = function () {
   return (
@@ -8,7 +9,7 @@ const ExampleNavbar: FC = function () {
       <div className="w-full bg-[#23404B] p-3 lg:px-5 lg:pl-3 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Navbar.Brand href="/">
+            <Navbar.Brand as={Link} to="/">
               <img alt="" src="/images/logo.png" className="mr-3 h-6 sm:h-8" />
               <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
                 Water District

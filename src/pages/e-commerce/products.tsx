@@ -23,6 +23,7 @@ import {
   HiUpload,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
+import { Link } from "react-router-dom";
 
 const EcommerceProductsPage: FC = function () {
   return (
@@ -31,13 +32,13 @@ const EcommerceProductsPage: FC = function () {
         <div className="mb-1 w-full">
           <div className="mb-4">
             <Breadcrumb className="mb-4">
-              <Breadcrumb.Item href="#">
+              <Breadcrumb.Item as={Link} to="/dashboard">
                 <div className="flex items-center gap-x-3">
                   <HiHome className="text-xl" />
                   <span className="dark:text-white">Home</span>
                 </div>
               </Breadcrumb.Item>
-              <Breadcrumb.Item href="/e-commerce/products">
+              <Breadcrumb.Item as={Link} to="/e-commerce/products">
                 E-commerce
               </Breadcrumb.Item>
               <Breadcrumb.Item>Products</Breadcrumb.Item>

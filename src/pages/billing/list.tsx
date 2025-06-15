@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
 import useCrudBill from "../../hooks/useCrudBill";
+import { Link } from "react-router-dom";
 import { HiHome } from "react-icons/hi";
 
 interface Bill {
@@ -51,7 +52,7 @@ const BillingPage: FC = function () {
       <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="mb-4">
           <Breadcrumb className="mb-2">
-            <Breadcrumb.Item href="#">
+            <Breadcrumb.Item as={Link} to="/dashboard">
               <HiHome className="text-xl mr-2" />
               <span className="dark:text-white">Home</span>
             </Breadcrumb.Item>
