@@ -52,7 +52,9 @@ const ExampleSidebar: FC = function () {
                 href="/billing"
                 icon={HiChartBar}
                 className={
-                  "/billing" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
+                  "/billing" === currentPage
+                    ? "bg-gray-100 dark:bg-gray-700"
+                    : ""
                 }
               >
                 Billing Management
@@ -83,7 +85,7 @@ const ExampleSidebar: FC = function () {
               >
                 Account Setiings
               </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
+              <Sidebar.Item href="/" icon={HiPencil}>
                 Logout
               </Sidebar.Item>
             </Sidebar.ItemGroup>

@@ -26,9 +26,8 @@ root.render(
     <Flowbite theme={{ theme }}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<DashboardPage />} index />
-          <Route path="/authentication/sign-in" element={<SignInPage />} />
-          <Route path="/authentication/sign-up" element={<SignUpPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} index />
+          <Route path="/" element={<SignInPage />} />
           <Route
             path="/e-commerce/products"
             element={<EcommerceProductsPage />}

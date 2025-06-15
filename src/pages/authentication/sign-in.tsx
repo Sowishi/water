@@ -1,73 +1,85 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+import { useState } from "react";
 import { Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
-import type { FC } from "react";
+import type { FC, FormEvent } from "react";
+import logo from "../../../public/images/logo.png";
 
 const SignInPage: FC = function () {
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
+
+    if (email === "teller@gmail.com" && password === "teller123") {
+      window.location.href = "/dashboard";
+      setError("");
+    } else {
+      setError("Invalid email or password.");
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center px-6 lg:h-screen lg:gap-y-12">
-      <div className="my-6 flex items-center gap-x-1 lg:my-0">
-        <img
-          alt="Flowbite logo"
-          src="https://flowbite.com/docs/images/logo.svg"
-          className="mr-3 h-12"
-        />
-        <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
-          Flowbite
-        </span>
-      </div>
-      <Card
-        horizontal
-        imgSrc="/images/authentication/login.jpg"
-        imgAlt=""
-        className="w-full md:max-w-screen-sm [&>img]:hidden md:[&>img]:w-96 md:[&>img]:p-0 md:[&>*]:w-full md:[&>*]:p-16 lg:[&>img]:block"
-      >
-        <h1 className="mb-3 text-2xl font-bold dark:text-white md:text-3xl">
-          Sign in to platform
-        </h1>
-        <form>
-          <div className="mb-4 flex flex-col gap-y-3">
-            <Label htmlFor="email">Your email</Label>
-            <TextInput
-              id="email"
-              name="email"
-              placeholder="name@company.com"
-              type="email"
-            />
-          </div>
-          <div className="mb-6 flex flex-col gap-y-3">
-            <Label htmlFor="password">Your password</Label>
-            <TextInput
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              type="password"
-            />
-          </div>
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-x-3">
-              <Checkbox id="rememberMe" name="rememberMe" />
-              <Label htmlFor="rememberMe">Remember me</Label>
+    <div
+      className="flex min-h-screen items-center justify-center bg-cover bg-center px-4"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80')",
+      }}
+    >
+      <div className="w-full max-w-md">
+        <div className="mb-6 flex justify-center">
+          <img alt="Flowbite logo" src={logo} className="h-28 drop-shadow-lg" />
+        </div>
+        <Card className="w-full p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/70 shadow-2xl rounded-2xl">
+          <h1 className="mb-3 text-2xl font-bold text-center text-gray-800 dark:text-white md:text-3xl">
+            Sign in to WaterWorks
+          </h1>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <Label htmlFor="email" value="Your email" />
+              <TextInput
+                id="email"
+                name="email"
+                placeholder="name@company.com"
+                type="email"
+                required
+                className="mt-1"
+              />
             </div>
-            <a
-              href="#"
-              className="w-1/2 text-right text-sm text-primary-600 dark:text-primary-300"
-            >
-              Lost Password?
-            </a>
-          </div>
-          <div className="mb-6">
-            <Button type="submit" className="w-full lg:w-auto">
+            <div className="mb-4">
+              <Label htmlFor="password" value="Your password" />
+              <TextInput
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                type="password"
+                required
+                className="mt-1"
+              />
+            </div>
+            {error && (
+              <p className="mb-4 text-sm text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            )}
+            <Button type="submit" className="w-full mt-2">
               Login to your account
             </Button>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-300">
-            Not registered?&nbsp;
-            <a href="#" className="text-primary-600 dark:text-primary-300">
-              Create account
+          </form>
+          <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+            <a
+              href="#"
+              className="text-blue-600 hover:underline dark:text-blue-400"
+            >
+              Forgot your password?
             </a>
-          </p>
-        </form>
-      </Card>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };
