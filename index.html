@@ -9,6 +9,12 @@
       rel="stylesheet"
       type="text/css"
     />
+    <script>
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900">
     <div id="root"></div>
