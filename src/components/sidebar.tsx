@@ -1,6 +1,7 @@
 import { Sidebar, TextInput } from "flowbite-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   HiChartBar,
   HiChartPie,
@@ -16,6 +17,7 @@ import {
 } from "react-icons/hi";
 
 const ExampleSidebar: FC = function () {
+  const { logout } = useAuth();
   const [currentPage, setCurrentPage] = useState("");
 
   useEffect(() => {
@@ -83,7 +85,14 @@ const ExampleSidebar: FC = function () {
               >
                 Account Setiings
               </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
+              <Sidebar.Item
+                href="#"
+                icon={HiPencil}
+                onClick={(e) => {
+                  e.preventDefault();
+                  logout();
+                }}
+              >
                 Logout
               </Sidebar.Item>
             </Sidebar.ItemGroup>
