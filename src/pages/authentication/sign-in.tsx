@@ -15,7 +15,12 @@ const SignInPage: FC = function () {
       .value;
 
     if (email === "teller@gmail.com" && password === "teller123") {
+      localStorage.setItem("role", "teller");
       window.location.href = "/dashboard";
+      setError("");
+    } else if (email === "meterman@gmail.com" && password === "meter123") {
+      localStorage.setItem("role", "meter");
+      window.location.href = "/billing";
       setError("");
     } else {
       setError("Invalid email or password.");
@@ -27,7 +32,7 @@ const SignInPage: FC = function () {
       className="flex min-h-screen items-center justify-center bg-cover bg-center px-4"
       style={{
         backgroundImage:
-          "linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80')",
+          "linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80')",
       }}
     >
       <div className="w-full max-w-md">

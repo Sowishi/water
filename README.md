@@ -109,3 +109,12 @@ However, `react-router` needs your server to send all requests to `/`. This is c
 Most, but not all, providers have a mechanism to do this, but we can't cover them all here.
 
 Alternatively, you can change this app to server-side render. `vite` isn't designed to do that, so you'll need to use a plugin to create an HTML file for each page. `vite` [has a section in their docs](https://github.com/vitejs/awesome-vite#ssr) about SSR plugins and they seem great.
+
+## Demo Accounts
+
+The following accounts are available for testing the application:
+
+- **Teller**: `teller@gmail.com` / `teller123`
+- **Meter man**: `meterman@gmail.com` / `meter123`
+
+Logging in with the meter man account redirects directly to the billing dashboard. When logged in as the meter man only the billing section is visible and paying bills is disabled.

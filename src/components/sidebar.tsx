@@ -24,6 +24,9 @@ const ExampleSidebar: FC = function () {
     setCurrentPage(newPage);
   }, [setCurrentPage]);
 
+  const role = localStorage.getItem("role");
+  const isMeter = role === "meter";
+
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example">
       <div className="flex h-full flex-col justify-between py-2">
@@ -39,15 +42,17 @@ const ExampleSidebar: FC = function () {
           </form>
           <Sidebar.Items>
             <Sidebar.ItemGroup>
-              <Sidebar.Item
-                href="/"
-                icon={HiChartPie}
-                className={
-                  "/" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
-                }
-              >
-                Dashboard
-              </Sidebar.Item>
+              {!isMeter && (
+                <Sidebar.Item
+                  href="/"
+                  icon={HiChartPie}
+                  className={
+                    "/" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
+                  }
+                >
+                  Dashboard
+                </Sidebar.Item>
+              )}
               <Sidebar.Item
                 href="/billing"
                 icon={HiChartBar}
@@ -59,36 +64,55 @@ const ExampleSidebar: FC = function () {
               >
                 Billing Management
               </Sidebar.Item>
-              <Sidebar.Item
-                href="/users/list"
-                icon={HiUsers}
-                className={
-                  "/users/list" === currentPage
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : ""
-                }
-              >
-                Customer List
-              </Sidebar.Item>
+              {!isMeter && (
+                <Sidebar.Item
+                  href="/users/list"
+                  icon={HiUsers}
+                  className={
+                    "/users/list" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  Customer List
+                </Sidebar.Item>
+              )}
             </Sidebar.ItemGroup>
-            <Sidebar.ItemGroup>
-              <Sidebar.Item
-                href="https://github.com/themesberg/flowbite-react/"
-                icon={HiClipboard}
-              >
-                Generate Reports
-              </Sidebar.Item>
+            {!isMeter && (
+              <Sidebar.ItemGroup>
+                <Sidebar.Item
+                  href="https://github.com/themesberg/flowbite-react/"
+                  icon={HiClipboard}
+                >
+                  Generate Reports
+                </Sidebar.Item>
 
-              <Sidebar.Item
-                href="https://github.com/themesberg/flowbite-react/issues"
-                icon={HiInformationCircle}
-              >
-                Account Setiings
-              </Sidebar.Item>
-              <Sidebar.Item href="/" icon={HiPencil}>
-                Logout
-              </Sidebar.Item>
-            </Sidebar.ItemGroup>
+                <Sidebar.Item
+                  href="https://github.com/themesberg/flowbite-react/issues"
+                  icon={HiInformationCircle}
+                >
+                  Account Setiings
+                </Sidebar.Item>
+                <Sidebar.Item
+                  href="/"
+                  icon={HiPencil}
+                  onClick={() => localStorage.removeItem("role")}
+                >
+                  Logout
+                </Sidebar.Item>
+              </Sidebar.ItemGroup>
+            )}
+            {isMeter && (
+              <Sidebar.ItemGroup>
+                <Sidebar.Item
+                  href="/"
+                  icon={HiPencil}
+                  onClick={() => localStorage.removeItem("role")}
+                >
+                  Logout
+                </Sidebar.Item>
+              </Sidebar.ItemGroup>
+            )}
           </Sidebar.Items>
         </div>
       </div>
