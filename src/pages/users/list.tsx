@@ -297,7 +297,11 @@ const AllUsersTable: FC = function () {
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
                     <div className="flex items-center">
                       <div
-                        className={`mr-2 h-2.5 w-2.5 rounded-full ${user.status === "active" ? "bg-green-400" : "bg-red-400"}`}
+                        className={`mr-2 h-2.5 w-2.5 rounded-full ${
+                          user.status === "active"
+                            ? "bg-green-400"
+                            : "bg-red-400"
+                        }`}
                       ></div>
                       {user.status === "active" ? "Active" : "Disconnected"}
                     </div>
@@ -307,7 +311,10 @@ const AllUsersTable: FC = function () {
                       size="xs"
                       onClick={() =>
                         updateUser(user.id, {
-                          status: user.status === "active" ? "disconnected" : "active",
+                          status:
+                            user.status === "active"
+                              ? "disconnected"
+                              : "active",
                         })
                       }
                     >
@@ -553,7 +560,7 @@ const DeleteUserModal: FC<DeleteUserModalProps> = ({ user }) => {
   const { deleteUser } = useCrudUser();
   return (
     <>
-      <Button color="failure" onClick={() => setOpen(true)}>
+      <Button size={"xs"} color="failure" onClick={() => setOpen(true)}>
         <div className="flex items-center gap-x-2">
           <HiTrash className="text-lg" />
           Delete user
