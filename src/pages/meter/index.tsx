@@ -1,0 +1,252 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import { Breadcrumb, Button, Label, Modal, Table, TextInput } from "flowbite-react";
+import type { FC } from "react";
+import { useEffect, useState } from "react";
+import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
+import useCrudUser from "../../hooks/useCrudUser";
+import useCrudBill from "../../hooks/useCrudBill";
+import { HiHome } from "react-icons/hi";
+
+interface Bill {
+  id: string;
+  userId: string;
+  month: string;
+  prevReading: number;
+  currentReading: number;
+  amount: string;
+  deadline: string;
+  paidDate?: string;
+}
+
+interface BillModalProps {
+  userId: string;
+}
+
+const MeterDashboardPage: FC = function () {
+  const [users, setUsers] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { getUsers } = useCrudUser();
+
+  useEffect(() => {
+    getUsers(setUsers);
+  }, []);
+
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      user.meterID?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  return (
+    <NavbarSidebarLayout isFooter={false}>
+      <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <div className="mb-4">
+          <Breadcrumb className="mb-2">
+            <Breadcrumb.Item href="#">
+              <HiHome className="text-xl mr-2" />
+              <span className="dark:text-white">Home</span>
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>Meter Dashboard</Breadcrumb.Item>
+          </Breadcrumb>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meter Dashboard</h1>
+        </div>
+      </div>
+
+      <div className="mb-4 px-4 sm:px-6 lg:px-8">
+        <TextInput
+          placeholder="Search by name or meter ID"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
+
+      <div className="mt-4 px-4 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800">
+          <MeterUsersTable users={filteredUsers} />
+        </div>
+      </div>
+    </NavbarSidebarLayout>
+  );
+};
+
+const BillModal: FC<BillModalProps> = ({ userId }) => {
+  const [isOpen, setOpen] = useState(false);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [month, setMonth] = useState("January");
+  const [prevReading, setPrevReading] = useState("");
+  const [currentReading, setCurrentReading] = useState("");
+  const [amount, setAmount] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const { getBillsByUser, addBill, deleteBill } = useCrudBill();
+  const { updateUser } = useCrudUser();
+
+  useEffect(() => {
+    if (isOpen) {
+      getBillsByUser(userId, setBills);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const prev = parseFloat(prevReading) || 0;
+    const curr = parseFloat(currentReading) || 0;
+    const consumption = Math.max(curr - prev, 0);
+    setAmount(consumption.toString());
+  }, [prevReading, currentReading]);
+
+  const handleAdd = () => {
+    addBill({
+      userId,
+      month,
+      prevReading: Number(prevReading),
+      currentReading: Number(currentReading),
+      amount,
+      deadline,
+      paidDate: "",
+    });
+    updateUser(userId, { status: "disconnected" });
+    setAmount("");
+    setPrevReading("");
+    setCurrentReading("");
+  };
+
+  return (
+    <>
+      <Button size="xs" onClick={() => setOpen(true)}>
+        Manage Billing
+      </Button>
+      <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
+        <Modal.Header>Monthly Bills</Modal.Header>
+        <Modal.Body>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div>
+              <Label htmlFor="month" value="Month" />
+              <select
+                id="month"
+                className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+              >
+                {[
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
+                ].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="prev" value="Prev Reading" />
+              <TextInput id="prev" value={prevReading} onChange={(e) => setPrevReading(e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="current" value="Current Reading" />
+              <TextInput id="current" value={currentReading} onChange={(e) => setCurrentReading(e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="amount" value="Amount" />
+              <TextInput id="amount" value={amount} readOnly />
+            </div>
+            <div>
+              <Label htmlFor="deadline" value="Deadline" />
+              <TextInput id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="flex justify-end mb-6">
+            <Button onClick={handleAdd}>Add Bill</Button>
+          </div>
+
+          <Table hoverable striped>
+            <Table.Head>
+              <Table.HeadCell>Month</Table.HeadCell>
+              <Table.HeadCell>Prev Reading</Table.HeadCell>
+              <Table.HeadCell>Current Reading</Table.HeadCell>
+              <Table.HeadCell>Amount</Table.HeadCell>
+              <Table.HeadCell>Deadline</Table.HeadCell>
+              <Table.HeadCell>Status</Table.HeadCell>
+              <Table.HeadCell>Actions</Table.HeadCell>
+            </Table.Head>
+            <Table.Body className="text-sm">
+              {bills.map((bill) => (
+                <Table.Row key={bill.id}>
+                  <Table.Cell>{bill.month}</Table.Cell>
+                  <Table.Cell>{bill.prevReading}</Table.Cell>
+                  <Table.Cell>{bill.currentReading}</Table.Cell>
+                  <Table.Cell>${bill.amount}</Table.Cell>
+                  <Table.Cell>{bill.deadline}</Table.Cell>
+                  <Table.Cell>
+                    {bill.paidDate ? (
+                      <span className="text-green-600">Paid on {bill.paidDate}</span>
+                    ) : (
+                      <span className="text-red-600">Unpaid</span>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button color="failure" size="xs" onClick={() => deleteBill(bill.id)}>
+                      Delete
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+};
+
+interface MeterUsersTableProps {
+  users: any[];
+}
+
+const MeterUsersTable: FC<MeterUsersTableProps> = ({ users }) => (
+  <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+    <Table.Head className="bg-gray-100 dark:bg-gray-700">
+      <Table.HeadCell>Name</Table.HeadCell>
+      <Table.HeadCell>Meter ID</Table.HeadCell>
+      <Table.HeadCell>Status</Table.HeadCell>
+      <Table.HeadCell>Manage</Table.HeadCell>
+    </Table.Head>
+    <Table.Body className="divide-y divide-gray-200 dark:divide-gray-700">
+      {users.map((user) => (
+        <Table.Row key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white items-center mr-2 justify-start flex">
+            <img className="w-[30px]" src={user.profilePic} alt="" />
+            {user.firstName} {user.lastName}
+          </Table.Cell>
+          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white">
+            {user.meterID}
+          </Table.Cell>
+          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+            <div className="flex items-center">
+              <div className={`mr-2 h-2.5 w-2.5 rounded-full ${user.status === "active" ? "bg-green-400" : "bg-red-400"}`}></div>
+              {user.status === "active" ? "Active" : "Disconnected"}
+            </div>
+          </Table.Cell>
+          <Table.Cell className="p-4">
+            <BillModal userId={user.id} />
+          </Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table>
+);
+
+export default MeterDashboardPage;
+

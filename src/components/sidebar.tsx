@@ -68,6 +68,15 @@ const ExampleSidebar: FC = function () {
               >
                 Customer List
               </Sidebar.Item>
+              <Sidebar.Item
+                href="/meter"
+                icon={HiChartBar}
+                className={
+                  "/meter" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
+                }
+              >
+                Meter Dashboard
+              </Sidebar.Item>
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
               <Sidebar.Item

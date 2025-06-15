@@ -1,8 +1,22 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
-import type { FC } from "react";
+import { Button, Card, Checkbox, Label, TextInput, Select } from "flowbite-react";
+import type { FC, FormEvent } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignInPage: FC = function () {
+  const navigate = useNavigate();
+  const [role, setRole] = useState("teller");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (role === "meter") {
+      navigate("/meter");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center px-6 lg:h-screen lg:gap-y-12">
       <div className="my-6 flex items-center gap-x-1 lg:my-0">
@@ -24,7 +38,7 @@ const SignInPage: FC = function () {
         <h1 className="mb-3 text-2xl font-bold dark:text-white md:text-3xl">
           Sign in to platform
         </h1>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4 flex flex-col gap-y-3">
             <Label htmlFor="email">Your email</Label>
             <TextInput
@@ -42,6 +56,13 @@ const SignInPage: FC = function () {
               placeholder="••••••••"
               type="password"
             />
+          </div>
+          <div className="mb-4 flex flex-col gap-y-3">
+            <Label htmlFor="role">Login as</Label>
+            <Select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="teller">Teller</option>
+              <option value="meter">Meter Man</option>
+            </Select>
           </div>
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-x-3">
