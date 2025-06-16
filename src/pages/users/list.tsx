@@ -22,6 +22,7 @@ import {
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
+import useCrudBill from "../../hooks/useCrudBill";
 
 interface User {
   id: string;
@@ -34,6 +35,8 @@ interface User {
   address: string;
   status: string;
   profilePic: string;
+  balance?: string;
+  history?: string[];
 }
 
 interface DeleteUserModalProps {
@@ -115,9 +118,11 @@ const AddUserModal: FC = function () {
     connection: "Resedential",
     address: "",
     status: "active",
+    balance: "750",
   });
 
   const { addUser } = useCrudUser();
+  const { addBill } = useCrudBill();
 
   const handleChange = (value: string, name: string) => {
     const formsCopy = { ...forms };
@@ -125,9 +130,19 @@ const AddUserModal: FC = function () {
     setForms(formsCopy);
   };
 
-  const handleSubmit = () => {
-    // Handle form submission logic here
-    addUser(forms);
+  const handleSubmit = async () => {
+    const userId = await addUser(forms);
+    if (userId) {
+      addBill({
+        userId,
+        month: "Connection",
+        prevReading: 0,
+        currentReading: 0,
+        amount: forms.balance,
+        deadline: "",
+        paidDate: "",
+      });
+    }
     setOpen(false);
   };
 
@@ -211,6 +226,7 @@ const AddUserModal: FC = function () {
                 >
                   <option value="Resedential">Resedential</option>
                   <option value="Comercial">Comercial</option>
+                  <option value="Industrial">Industrial</option>
                 </Select>
               </div>
             </div>
@@ -252,6 +268,7 @@ const AllUsersTable: FC = function () {
         <Table.HeadCell>Meter ID</Table.HeadCell>
         <Table.HeadCell>Address</Table.HeadCell>
         <Table.HeadCell>Connection</Table.HeadCell>
+        <Table.HeadCell>Balance</Table.HeadCell>
         <Table.HeadCell>Status</Table.HeadCell>
         <Table.HeadCell>Change status</Table.HeadCell>
         <Table.HeadCell>Actions</Table.HeadCell>
@@ -293,6 +310,9 @@ const AllUsersTable: FC = function () {
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
                     {user.connection}
+                  </Table.Cell>
+                  <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
+                    {user.balance}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
                     <div className="flex items-center">
@@ -442,7 +462,11 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
   };
 
   const handleSubmit = () => {
-    updateUser(user.id, forms);
+    const history = user.history ?? [];
+    updateUser(user.id, {
+      ...forms,
+      history: [...history, new Date().toISOString()],
+    });
     setOpen(false);
   };
 
@@ -513,7 +537,7 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
                   id="meterID"
                   name="meterID"
                   value={forms.meterID}
-                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                  readOnly
                 />
               </div>
             </div>
@@ -528,6 +552,7 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
                 >
                   <option value="Resedential">Resedential</option>
                   <option value="Comercial">Comercial</option>
+                  <option value="Industrial">Industrial</option>
                 </Select>
               </div>
             </div>
