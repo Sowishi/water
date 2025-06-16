@@ -11,6 +11,7 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
+import { increment } from "firebase/firestore";
 import useCrudBill from "../../hooks/useCrudBill";
 import { HiHome } from "react-icons/hi";
 
@@ -27,6 +28,7 @@ interface Bill {
 
 interface BillModalProps {
   userId: string;
+  connection: string;
 }
 
 const BillingPage: FC = function () {
@@ -81,7 +83,7 @@ const BillingPage: FC = function () {
   );
 };
 
-const BillModal: FC<BillModalProps> = ({ userId }) => {
+const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [month, setMonth] = useState("January");
@@ -89,6 +91,11 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
   const [currentReading, setCurrentReading] = useState("");
   const [amount, setAmount] = useState("");
   const [deadline, setDeadline] = useState("");
+  const rates: Record<string, number> = {
+    Resedential: 10,
+    Comercial: 15,
+    Industrial: 20,
+  };
   const { getBillsByUser, addBill, deleteBill, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
 
@@ -99,11 +106,21 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
   }, [isOpen]);
 
   useEffect(() => {
+    if (bills.length > 0) {
+      const last = bills[bills.length - 1];
+      setPrevReading(String(last.currentReading));
+    } else {
+      setPrevReading("0");
+    }
+  }, [bills]);
+
+  useEffect(() => {
     const prev = parseFloat(prevReading) || 0;
     const curr = parseFloat(currentReading) || 0;
     const consumption = Math.max(curr - prev, 0);
-    setAmount(consumption.toString());
-  }, [prevReading, currentReading]);
+    const rate = rates[connection] ?? 0;
+    setAmount(String(consumption * rate));
+  }, [prevReading, currentReading, connection]);
 
   const handleAdd = () => {
     addBill({
@@ -115,7 +132,20 @@ const BillModal: FC<BillModalProps> = ({ userId }) => {
       deadline,
       paidDate: "",
     });
-    updateUser(userId, { status: "disconnected" });
+    updateUser(userId, {
+      status: "disconnected",
+      balance: increment(Number(amount)),
+    });
+    const receipt = window.open("", "", "width=600,height=400");
+    if (receipt) {
+      receipt.document.write(`<h1>Meter Reading Receipt</h1>`);
+      receipt.document.write(`<p>Month: ${month}</p>`);
+      receipt.document.write(`<p>Prev: ${prevReading}</p>`);
+      receipt.document.write(`<p>Current: ${currentReading}</p>`);
+      receipt.document.write(`<p>Amount: ${amount}</p>`);
+      receipt.print();
+      receipt.close();
+    }
     setAmount("");
     setPrevReading("");
     setCurrentReading("");
@@ -265,8 +295,21 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
 
   const handlePay = () => {
     if (billId && date) {
+      const bill = bills.find((b) => b.id === billId);
       updateBill(billId, { paidDate: date });
-      updateUser(userId, { status: "active" });
+      updateUser(userId, {
+        status: "active",
+        balance: increment(-(bill ? Number(bill.amount) : 0)),
+      });
+      const receipt = window.open("", "", "width=600,height=400");
+      if (receipt && bill) {
+        receipt.document.write(`<h1>Payment Receipt</h1>`);
+        receipt.document.write(`<p>Month: ${bill.month}</p>`);
+        receipt.document.write(`<p>Amount: ${bill.amount}</p>`);
+        receipt.document.write(`<p>Paid Date: ${date}</p>`);
+        receipt.print();
+        receipt.close();
+      }
       setOpen(false);
       setDate("");
       setBillId("");
@@ -347,7 +390,7 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
             </div>
           </Table.Cell>
           <Table.Cell className="p-4 space-x-2 flex">
-            <BillModal userId={user.id} />
+            <BillModal userId={user.id} connection={user.connection} />
             {localStorage.getItem("role") !== "meter" && (
               <PayBillingModal userId={user.id} />
             )}

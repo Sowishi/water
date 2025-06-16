@@ -14,7 +14,8 @@ const useCrudBill = () => {
   const colRef = collection(db, "bills");
 
   const addBill = async (bill) => {
-    await addDoc(colRef, bill);
+    const docRef = await addDoc(colRef, bill);
+    return docRef.id;
   };
 
   const getBills = (setBills) => {
