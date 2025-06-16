@@ -83,8 +83,13 @@ const ExampleSidebar: FC = function () {
             {!isMeter && (
               <Sidebar.ItemGroup>
                 <Sidebar.Item
-                  href="https://github.com/themesberg/flowbite-react/"
+                  href="/reports"
                   icon={HiClipboard}
+                  className={
+                    "/reports" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
                 >
                   Generate Reports
                 </Sidebar.Item>

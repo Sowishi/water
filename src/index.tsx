@@ -12,6 +12,7 @@ import SignUpPage from "./pages/authentication/sign-up";
 import EcommerceProductsPage from "./pages/e-commerce/products";
 import UserListPage from "./pages/users/list";
 import BillingPage from "./pages/billing/list";
+import ReportsPage from "./pages/reports";
 
 const container = document.getElementById("root");
 
@@ -34,6 +35,7 @@ root.render(
           />
           <Route path="/users/list" element={<UserListPage />} />
           <Route path="/billing" element={<BillingPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Routes>
       </BrowserRouter>
     </Flowbite>
