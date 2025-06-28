@@ -7,39 +7,43 @@ import NavbarSidebarLayout from "../layouts/navbar-sidebar";
 import useCrudBill from "../hooks/useCrudBill";
 import useCrudUser from "../hooks/useCrudUser";
 
-const DashboardPage: FC = function () {
-  return (
-    <NavbarSidebarLayout>
-      <div className="px-4 pt-6">
-        <div className="my-6">
-          <LatestTransactions />
-        </div>
-        <LatestCustomers />
-        <div className="my-6">
-          <PaymentsOverview />
-        </div>
-      </div>
-    </NavbarSidebarLayout>
-  );
-};
+/** Reusable card layout for dashboard sections */
+const DashboardCard: FC<{ title?: string; children: React.ReactNode }> = ({
+  title,
+  children,
+}) => (
+  <div className="mb-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+    {title && (
+      <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+        {title}
+      </h3>
+    )}
+    {children}
+  </div>
+);
 
 const Datepicker: FC = function () {
   return (
-    <span className="text-sm text-gray-600">
-      <Dropdown inline label="Last 7 days">
-        <Dropdown.Item>
-          <strong>Sep 16, 2021 - Sep 22, 2021</strong>
-        </Dropdown.Item>
-        <Dropdown.Divider />
-        <Dropdown.Item>Yesterday</Dropdown.Item>
-        <Dropdown.Item>Today</Dropdown.Item>
-        <Dropdown.Item>Last 7 days</Dropdown.Item>
-        <Dropdown.Item>Last 30 days</Dropdown.Item>
-        <Dropdown.Item>Last 90 days</Dropdown.Item>
-        <Dropdown.Divider />
-        <Dropdown.Item>Custom...</Dropdown.Item>
-      </Dropdown>
-    </span>
+    <Dropdown
+      inline
+      label={
+        <span className="text-sm text-gray-600 dark:text-gray-300">
+          📅 Last 7 days
+        </span>
+      }
+    >
+      <Dropdown.Item>
+        <strong>Sep 16, 2021 - Sep 22, 2021</strong>
+      </Dropdown.Item>
+      <Dropdown.Divider />
+      <Dropdown.Item>Yesterday</Dropdown.Item>
+      <Dropdown.Item>Today</Dropdown.Item>
+      <Dropdown.Item>Last 7 days</Dropdown.Item>
+      <Dropdown.Item>Last 30 days</Dropdown.Item>
+      <Dropdown.Item>Last 90 days</Dropdown.Item>
+      <Dropdown.Divider />
+      <Dropdown.Item>Custom...</Dropdown.Item>
+    </Dropdown>
   );
 };
 
@@ -63,48 +67,41 @@ const LatestCustomers: FC = function () {
   const latest = [...users].slice(-5).reverse();
 
   return (
-    <div className="mb-4 h-full rounded-lg bg-white p-4 shadow dark:bg-gray-800 sm:p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
-          Latest Customers
-        </h3>
-      </div>
-      <div className="flow-root">
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {latest.map((u) => (
-            <li className="py-3 sm:py-4" key={u.id}>
-              <div className="flex items-center space-x-4">
-                <div className="shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={u.profilePic}
-                    alt=""
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    {u.firstName} {u.lastName}
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    {u.email}
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  {u.status}
-                </div>
+    <DashboardCard title="Latest Customers">
+      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+        {latest.map((u) => (
+          <li className="py-3 sm:py-4" key={u.id}>
+            <div className="flex items-center space-x-4">
+              <img
+                className="h-10 w-10 rounded-full"
+                src={u.profilePic}
+                alt={`${u.firstName}`}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                  {u.firstName} {u.lastName}
+                </p>
+                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                  {u.email}
+                </p>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6">
+              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {u.status}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
         <Datepicker />
       </div>
-    </div>
+    </DashboardCard>
   );
 };
 
 interface Bill {
+  id: string;
+  userId: string;
   amount: string;
   paidDate?: string;
 }
@@ -113,9 +110,9 @@ const PaymentsOverview: FC = function () {
   const [bills, setBills] = useState<Bill[]>([]);
   const { getBills } = useCrudBill();
   const { mode } = useTheme();
-  const isDarkTheme = mode === "dark";
-  const labelColor = isDarkTheme ? "#93ACAF" : "#6B7280";
-  const borderColor = isDarkTheme ? "#374151" : "#F3F4F6";
+  const isDark = mode === "dark";
+  const labelColor = isDark ? "#93ACAF" : "#6B7280";
+  const borderColor = isDark ? "#374151" : "#F3F4F6";
 
   useEffect(() => {
     getBills(setBills);
@@ -151,46 +148,31 @@ const PaymentsOverview: FC = function () {
         "Dec",
       ],
       labels: {
-        style: {
-          colors: [labelColor],
-          fontSize: "14px",
-          fontWeight: 500,
-        },
+        style: { colors: [labelColor], fontSize: "14px", fontWeight: 500 },
       },
       axisBorder: { color: borderColor },
       axisTicks: { color: borderColor },
     },
     yaxis: {
-      labels: {
-        style: {
-          colors: [labelColor],
-          fontSize: "14px",
-        },
-      },
+      labels: { style: { colors: [labelColor], fontSize: "14px" } },
     },
     colors: ["#1C64F2"],
     grid: {
-      show: true,
-      borderColor: borderColor,
+      borderColor,
       strokeDashArray: 1,
       padding: { left: 35, bottom: 15 },
     },
   };
 
-  const series = [
-    {
-      name: "Payments",
-      data: totals,
-    },
-  ];
-
   return (
-    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 sm:p-6 xl:p-8">
-      <h3 className="mb-4 text-xl font-bold leading-none text-gray-900 dark:text-white">
-        Payments Overview
-      </h3>
-      <Chart options={options} series={series} type="bar" height={350} />
-    </div>
+    <DashboardCard title="Payments Overview">
+      <Chart
+        options={options}
+        series={[{ name: "Payments", data: totals }]}
+        type="bar"
+        height={300}
+      />
+    </DashboardCard>
   );
 };
 
@@ -205,78 +187,69 @@ const LatestTransactions: FC = function () {
     getUsers(setUsers);
   }, []);
 
-  const getName = (userId: string) => {
-    const u = users.find((user) => user.id === userId);
-    return u ? `${u.firstName} ${u.lastName}` : "Unknown";
+  const getName = (id: string) => {
+    const user = users.find((u) => u.id === id);
+    return user ? `${user.firstName} ${user.lastName}` : "Unknown";
   };
 
   const paid = bills
     .filter((b) => b.paidDate)
     .sort(
       (a, b) =>
-        new Date(b.paidDate ?? "").getTime() -
-        new Date(a.paidDate ?? "").getTime()
+        new Date(b.paidDate!).getTime() - new Date(a.paidDate!).getTime()
     )
     .slice(0, 10);
 
   return (
-    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 sm:p-6 xl:p-8">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-            Latest Transactions
-          </h3>
-          <span className="text-base font-normal text-gray-600 dark:text-gray-400">
-            This is a list of latest transactions
-          </span>
-        </div>
+    <DashboardCard title="Latest Transactions">
+      <span className="text-sm text-gray-500 dark:text-gray-400 mb-4 block">
+        This is a list of the latest transactions
+      </span>
+      <div className="overflow-x-auto">
+        <Table striped>
+          <Table.Head className="bg-gray-50 dark:bg-gray-700">
+            <Table.HeadCell>Transaction</Table.HeadCell>
+            <Table.HeadCell>Date & Time</Table.HeadCell>
+            <Table.HeadCell>Amount</Table.HeadCell>
+            <Table.HeadCell>Status</Table.HeadCell>
+          </Table.Head>
+          <Table.Body className="bg-white dark:bg-gray-800">
+            {paid.map((b) => (
+              <Table.Row key={b.id}>
+                <Table.Cell className="p-4 text-sm text-gray-900 dark:text-white">
+                  Payment from{" "}
+                  <span className="font-semibold">{getName(b.userId)}</span>
+                </Table.Cell>
+                <Table.Cell className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(b.paidDate!).toLocaleDateString()}
+                </Table.Cell>
+                <Table.Cell className="p-4 text-sm font-semibold text-gray-900 dark:text-white">
+                  ₱{b.amount}
+                </Table.Cell>
+                <Table.Cell className="p-4">
+                  <Badge color="success">Completed</Badge>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
       </div>
-      <div className="mt-8 flex flex-col">
-        <div className="overflow-x-auto rounded-lg">
-          <div className="inline-block min-w-full w-full align-middle">
-            <div className="overflow-hidden shadow sm:rounded-lg">
-              <Table
-                striped
-                className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600"
-              >
-                <Table.Head className="bg-gray-50 dark:bg-gray-700">
-                  <Table.HeadCell>Transaction</Table.HeadCell>
-                  <Table.HeadCell>Date &amp; Time</Table.HeadCell>
-                  <Table.HeadCell>Amount</Table.HeadCell>
-                  <Table.HeadCell>Status</Table.HeadCell>
-                </Table.Head>
-                <Table.Body className="bg-white dark:bg-gray-800">
-                  {paid.map((b) => (
-                    <Table.Row key={b.id}>
-                      <Table.Cell className="whitespace-nowrap p-4 text-sm font-normal text-gray-900 dark:text-white">
-                        Payment from{" "}
-                        <span className="font-semibold">
-                          {getName(b.userId)}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap p-4 text-sm font-normal text-gray-500 dark:text-gray-400">
-                        {b.paidDate
-                          ? new Date(b.paidDate).toLocaleDateString()
-                          : ""}
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900 dark:text-white">
-                        ₱{b.amount}
-                      </Table.Cell>
-                      <Table.Cell className="flex whitespace-nowrap p-4">
-                        <Badge color="success">Completed</Badge>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-between pt-3 sm:pt-6">
+      <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
         <Datepicker />
       </div>
-    </div>
+    </DashboardCard>
+  );
+};
+
+const DashboardPage: FC = function () {
+  return (
+    <NavbarSidebarLayout>
+      <div className="px-4 pt-6">
+        <LatestTransactions />
+        <LatestCustomers />
+        <PaymentsOverview />
+      </div>
+    </NavbarSidebarLayout>
   );
 };
 
