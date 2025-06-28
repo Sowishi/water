@@ -8,12 +8,13 @@ import {
   TextInput,
 } from "flowbite-react";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
 import { increment } from "firebase/firestore";
 import useCrudBill from "../../hooks/useCrudBill";
 import { HiHome } from "react-icons/hi";
+import ReactToPdf from "react-to-pdf";
 
 interface Bill {
   id: string;
@@ -98,6 +99,9 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
   };
   const { getBillsByUser, addBill, deleteBill, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -149,6 +153,11 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
     setAmount("");
     setPrevReading("");
     setCurrentReading("");
+  };
+
+  const openReceipt = (bill: Bill) => {
+    setSelectedBill(bill);
+    setReceiptOpen(true);
   };
 
   return (
@@ -269,7 +278,14 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
                       </span>
                     )}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="space-x-2">
+                    <Button
+                      size="xs"
+                      className="rounded px-3 py-1 text-sm font-medium"
+                      onClick={() => openReceipt(bill)}
+                    >
+                      View Receipt
+                    </Button>
                     <Button
                       color="failure"
                       size="xs"
@@ -284,6 +300,29 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
             </Table.Body>
           </Table>
         </Modal.Body>
+      </Modal>
+      <Modal show={receiptOpen} onClose={() => setReceiptOpen(false)}>
+        <Modal.Header>Receipt</Modal.Header>
+        <Modal.Body>
+          <div ref={receiptRef} className="space-y-1">
+            <h3 className="text-lg font-semibold">Water Bill Receipt</h3>
+            <p>Month: {selectedBill?.month}</p>
+            <p>Prev Reading: {selectedBill?.prevReading}</p>
+            <p>Current Reading: {selectedBill?.currentReading}</p>
+            <p>Amount: ₱{selectedBill?.amount}</p>
+            <p>Deadline: {selectedBill?.deadline}</p>
+            {selectedBill?.paidDate && <p>Paid Date: {selectedBill.paidDate}</p>}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          {selectedBill && (
+            <ReactToPdf targetRef={receiptRef} filename="receipt.pdf">
+              {({ toPdf }) => (
+                <Button onClick={toPdf}>Download PDF</Button>
+              )}
+            </ReactToPdf>
+          )}
+        </Modal.Footer>
       </Modal>
     </>
   );
