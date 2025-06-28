@@ -165,16 +165,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
       status: "disconnected",
       balance: increment(Number(amount)),
     });
-    const receipt = window.open("", "", "width=600,height=400");
-    if (receipt) {
-      receipt.document.write(`<h1>Meter Reading Receipt</h1>`);
-      receipt.document.write(`<p>Month: ${month}</p>`);
-      receipt.document.write(`<p>Prev: ${prevReading}</p>`);
-      receipt.document.write(`<p>Current: ${currentReading}</p>`);
-      receipt.document.write(`<p>Amount: ${amount}</p>`);
-      receipt.print();
-      receipt.close();
-    }
+
     setAmount("");
     setPrevReading("");
     setCurrentReading("");
