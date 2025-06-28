@@ -379,7 +379,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
 };
 
 const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
-  <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+  <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
     <Table.Head className="bg-gray-50 dark:bg-gray-800">
       <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
         Name

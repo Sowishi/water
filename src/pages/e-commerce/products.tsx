@@ -86,7 +86,7 @@ const EcommerceProductsPage: FC = function () {
       </div>
       <div className="flex flex-col">
         <div className="overflow-x-auto">
-          <div className="inline-block min-w-full align-middle">
+          <div className="inline-block min-w-full w-full align-middle">
             <div className="overflow-hidden shadow">
               <ProductsTable />
             </div>
@@ -369,7 +369,7 @@ const DeleteProductModal: FC = function () {
 
 const ProductsTable: FC = function () {
   return (
-    <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+    <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
       <Table.Head className="bg-gray-100 dark:bg-gray-700">
         <Table.HeadCell>
           <span className="sr-only">Toggle selected</span>

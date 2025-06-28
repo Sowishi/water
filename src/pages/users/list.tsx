@@ -92,7 +92,7 @@ const UserListPage: FC = function () {
       </div>
       <div className="flex flex-col">
         <div className="overflow-x-auto">
-          <div className="inline-block min-w-full align-middle">
+          <div className="inline-block min-w-full w-full align-middle">
             <div className="overflow-hidden shadow">
               <AllUsersTable />
             </div>
@@ -262,7 +262,7 @@ const AllUsersTable: FC = function () {
   }, []);
 
   return (
-    <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+    <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
       <Table.Head className="bg-gray-100 dark:bg-gray-700">
         <Table.HeadCell>Name</Table.HeadCell>
         <Table.HeadCell>Meter ID</Table.HeadCell>

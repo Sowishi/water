@@ -269,11 +269,11 @@ const LatestTransactions: FC = function () {
       </div>
       <div className="mt-8 flex flex-col">
         <div className="overflow-x-auto rounded-lg">
-          <div className="inline-block min-w-full align-middle">
+          <div className="inline-block min-w-full w-full align-middle">
             <div className="overflow-hidden shadow sm:rounded-lg">
               <Table
                 striped
-                className="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+                className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600"
               >
                 <Table.Head className="bg-gray-50 dark:bg-gray-700">
                   <Table.HeadCell>Transaction</Table.HeadCell>
