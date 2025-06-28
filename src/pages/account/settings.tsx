@@ -1,6 +1,7 @@
 import { Breadcrumb, Button, Label, TextInput } from "flowbite-react";
 import type { FC, FormEvent } from "react";
 import { useEffect, useState } from "react";
+import Toast from "../../components/toast";
 import { HiHome } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 
@@ -115,10 +116,19 @@ const AccountSettingsPage: FC = function () {
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          {success && <p className="text-sm text-green-600">{success}</p>}
           <Button type="submit">Update Password</Button>
         </form>
       </div>
+      {error && (
+        <Toast message={error} type="error" onClose={() => setError("")} />
+      )}
+      {success && (
+        <Toast
+          message={success}
+          type="success"
+          onClose={() => setSuccess("")}
+        />
+      )}
     </NavbarSidebarLayout>
   );
 };

@@ -1,6 +1,7 @@
-import { Breadcrumb, Table } from "flowbite-react";
+import { Breadcrumb, Table, Button } from "flowbite-react";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import ReactToPdf from "react-to-pdf";
 import { HiHome } from "react-icons/hi";
 import NavbarSidebarLayout from "../layouts/navbar-sidebar";
 import useCrudBill from "../hooks/useCrudBill";
@@ -26,6 +27,7 @@ interface User {
 const ReportsPage: FC = function () {
   const [bills, setBills] = useState<Bill[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const tableRef = useRef<HTMLDivElement>(null);
   const { getBills } = useCrudBill();
   const { getUsers } = useCrudUser();
 
@@ -39,7 +41,7 @@ const ReportsPage: FC = function () {
   return (
     <NavbarSidebarLayout isFooter={false}>
       <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <Breadcrumb className="mb-2">
             <Breadcrumb.Item href="#">
               <HiHome className="text-xl mr-2" />
@@ -50,10 +52,24 @@ const ReportsPage: FC = function () {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Reports
           </h1>
+          <ReactToPdf
+            targetRef={tableRef}
+            filename="reports.pdf"
+            options={{ orientation: "landscape" }}
+          >
+            {({ toPdf }) => (
+              <Button size="sm" onClick={toPdf} className="ml-auto">
+                Download PDF
+              </Button>
+            )}
+          </ReactToPdf>
         </div>
       </div>
       <div className="p-4 sm:p-6">
-        <div className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800">
+        <div
+          ref={tableRef}
+          className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800"
+        >
           <Table hoverable striped>
             <Table.Head>
               <Table.HeadCell>Customer</Table.HeadCell>
