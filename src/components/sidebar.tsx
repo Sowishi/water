@@ -99,18 +99,15 @@ const ExampleSidebar: FC<SidebarProps> = function ({ isOpen, onClose }) {
             </Sidebar.ItemGroup>
             {!isMeter && (
               <Sidebar.ItemGroup>
-                <Sidebar.Item
-                  href="https://github.com/themesberg/flowbite-react/"
-                  icon={HiClipboard}
-                >
+                <Sidebar.Item href="/reports" icon={HiClipboard}>
                   Generate Reports
                 </Sidebar.Item>
 
                 <Sidebar.Item
-                  href="https://github.com/themesberg/flowbite-react/issues"
+                  href="/account/settings"
                   icon={HiInformationCircle}
                 >
-                  Account Setiings
+                  Account Settings
                 </Sidebar.Item>
                 <Sidebar.Item
                   href="/"

@@ -1,11 +1,30 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
 import type { FC, FormEvent } from "react";
 import logo from "../../../public/images/logo.png";
 
+const defaultAccounts = [
+  { email: "teller@gmail.com", password: "teller123", role: "teller" },
+  { email: "meterman@gmail.com", password: "meter123", role: "meter" },
+];
+
 const SignInPage: FC = function () {
   const [error, setError] = useState("");
+  const [accounts, setAccounts] = useState(defaultAccounts);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("accounts");
+    if (stored) {
+      try {
+        setAccounts(JSON.parse(stored));
+      } catch {
+        setAccounts(defaultAccounts);
+      }
+    } else {
+      localStorage.setItem("accounts", JSON.stringify(defaultAccounts));
+    }
+  }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -14,13 +33,17 @@ const SignInPage: FC = function () {
     const password = (form.elements.namedItem("password") as HTMLInputElement)
       .value;
 
-    if (email === "teller@gmail.com" && password === "teller123") {
-      localStorage.setItem("role", "teller");
-      window.location.href = "/dashboard";
-      setError("");
-    } else if (email === "meterman@gmail.com" && password === "meter123") {
-      localStorage.setItem("role", "meter");
-      window.location.href = "/billing";
+    const account = accounts.find(
+      (a) => a.email === email && a.password === password,
+    );
+
+    if (account) {
+      localStorage.setItem("role", account.role);
+      if (account.role === "meter") {
+        window.location.href = "/billing";
+      } else {
+        window.location.href = "/dashboard";
+      }
       setError("");
     } else {
       setError("Invalid email or password.");
