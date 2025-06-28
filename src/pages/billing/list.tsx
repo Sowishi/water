@@ -221,6 +221,10 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                   </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Connection Type</h1>
+                  <h1 className="text-lg font-bold">{user.connection}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Address</h1>
                   <h1 className="text-xs font-bold text-nowrap">
                     {user.address}
