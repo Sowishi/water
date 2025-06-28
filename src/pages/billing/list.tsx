@@ -8,7 +8,8 @@ import {
   TextInput,
 } from "flowbite-react";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import ReactToPdf from "react-to-pdf";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
 import { increment } from "firebase/firestore";
@@ -112,6 +113,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
 
   const [showReceipt, setShowReceipt] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   const consumption = selectedBill
     ? Math.max(selectedBill.currentReading - selectedBill.prevReading, 0)
@@ -190,13 +192,27 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
         <Modal.Header>Billing Receipt</Modal.Header>
         <Modal.Body>
           {selectedBill ? (
-            <div className="wrapper flex justify-center items-center flex-col dark:text-white">
-              <div className="flex flex-col items-center justify-center">
-                <img width={130} src={logo} alt="" />
-                <div className="text-center mt-5">
-                  <h1>VILLANUEVA WATER SYSTEM</h1>
-                  <h1>LGU Villanueva {"\n"} Misamin, Oriental</h1>
-                </div>
+            <>
+              <ReactToPdf
+                targetRef={receiptRef}
+                filename={`receipt-${selectedBill.month}.pdf`}
+              >
+                {({ toPdf }) => (
+                  <Button onClick={toPdf} className="mb-4">
+                    Download PDF
+                  </Button>
+                )}
+              </ReactToPdf>
+              <div
+                ref={receiptRef}
+                className="wrapper flex justify-center items-center flex-col dark:text-white"
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <img width={130} src={logo} alt="" />
+                  <div className="text-center mt-5">
+                    <h1>VILLANUEVA WATER SYSTEM</h1>
+                    <h1>LGU Villanueva {"\n"} Misamin, Oriental</h1>
+                  </div>
               </div>
               <div className="w-full mt-10">{formattedDateTime}</div>
               <h1>=============================</h1>
@@ -278,6 +294,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
               </div>
               <h1>=============================</h1>
             </div>
+            </>
           ) : (
             <p>No data available.</p>
           )}
