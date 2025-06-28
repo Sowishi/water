@@ -124,6 +124,16 @@ const AddUserModal: FC = function () {
   const { addUser } = useCrudUser();
   const { addBill } = useCrudBill();
 
+  const generateMeterID = () => {
+    return Math.floor(100000000 + Math.random() * 900000000).toString();
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setForms((prev) => ({ ...prev, meterID: generateMeterID() }));
+    }
+  }, [isOpen]);
+
   const handleChange = (value: string, name: string) => {
     const formsCopy = { ...forms };
     formsCopy[name] = value;
@@ -207,13 +217,13 @@ const AddUserModal: FC = function () {
               </div>
             </div>
             <div>
-              <Label htmlFor="department">Meter ID</Label>
+              <Label htmlFor="meterID">Meter ID</Label>
               <div className="mt-1">
                 <TextInput
-                  id="department"
+                  id="meterID"
                   name="meterID"
-                  placeholder="Development"
-                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                  value={forms.meterID}
+                  readOnly
                 />
               </div>
             </div>
