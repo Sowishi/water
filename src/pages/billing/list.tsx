@@ -199,7 +199,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
         <Modal.Header>Billing Receipt</Modal.Header>
         <Modal.Body>
           {selectedBill ? (
-            <div className="wrapper flex justify-center items-center flex-col">
+            <div className="wrapper flex justify-center items-center flex-col dark:text-white">
               <div className="flex flex-col items-center justify-center">
                 <img width={130} src={logo} alt="" />
                 <div className="text-center mt-5">
@@ -371,6 +371,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
               <Table.HeadCell>Month</Table.HeadCell>
               <Table.HeadCell>Prev Reading</Table.HeadCell>
               <Table.HeadCell>Current Reading</Table.HeadCell>
+              <Table.HeadCell>Connection Type</Table.HeadCell>
               <Table.HeadCell>Amount</Table.HeadCell>
               <Table.HeadCell>Deadline</Table.HeadCell>
               <Table.HeadCell>Status</Table.HeadCell>
@@ -385,6 +386,8 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                   <Table.Cell>{bill.month}</Table.Cell>
                   <Table.Cell>{bill.prevReading}</Table.Cell>
                   <Table.Cell>{bill.currentReading}</Table.Cell>
+                  <Table.Cell>{user.connection}</Table.Cell>
+
                   <Table.Cell>₱{bill.amount}</Table.Cell>
                   <Table.Cell>{bill.deadline}</Table.Cell>
                   <Table.Cell>
@@ -525,6 +528,9 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
         Meter ID
       </Table.HeadCell>
       <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Connection Type
+      </Table.HeadCell>
+      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
         Status
       </Table.HeadCell>
       <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -550,6 +556,11 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
           <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
             <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
               {user.meterID}
+            </span>
+          </Table.Cell>
+          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
+              {user.connection}
             </span>
           </Table.Cell>
           <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
