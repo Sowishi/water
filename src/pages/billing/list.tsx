@@ -14,6 +14,7 @@ import useCrudUser from "../../hooks/useCrudUser";
 import { increment } from "firebase/firestore";
 import useCrudBill from "../../hooks/useCrudBill";
 import { HiHome } from "react-icons/hi";
+import logo from "../../../public/images/logo.png";
 
 interface Bill {
   id: string;
@@ -29,6 +30,7 @@ interface Bill {
 interface BillModalProps {
   userId: string;
   connection: string;
+  user: Object;
 }
 
 const BillingPage: FC = function () {
@@ -83,7 +85,7 @@ const BillingPage: FC = function () {
   );
 };
 
-const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
+const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [month, setMonth] = useState("January");
@@ -98,6 +100,14 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
   };
   const { getBillsByUser, addBill, deleteBill, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
+
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+
+  const handleViewReceipt = (bill: Bill) => {
+    setSelectedBill(bill);
+    setShowReceipt(true);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -151,6 +161,12 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
     setCurrentReading("");
   };
 
+  const now = new Date();
+  const formattedDateTime = now.toLocaleString("en-PH", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+
   return (
     <>
       <Button
@@ -160,6 +176,94 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
       >
         View Billing
       </Button>
+      <Modal show={showReceipt} onClose={() => setShowReceipt(false)}>
+        <Modal.Header>Billing Receipt</Modal.Header>
+        <Modal.Body>
+          {selectedBill ? (
+            <div className="wrapper flex justify-center items-center flex-col">
+              <div className="flex flex-col items-center justify-center">
+                <img width={130} src={logo} alt="" />
+                <div className="text-center mt-5">
+                  <h1>VILLANUEVA WATER SYSTEM</h1>
+                  <h1>LGU Villanueva {"\n"} Misamin, Oriental</h1>
+                </div>
+              </div>
+              <div className="w-full mt-10">{formattedDateTime}</div>
+              <h1>=============================</h1>
+              <div className="content w-full mt-5">
+                <div className="flex w-full  justify-between items-center">
+                  <h1>Account Number</h1>
+                  <h1 className="text-lg font-bold">{user.meterID}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Account Name</h1>
+                  <h1 className="text-lg font-bold">
+                    {user.firstName + " " + user.lastName}
+                  </h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Address</h1>
+                  <h1 className="text-xs font-bold text-nowrap">
+                    {user.address}
+                  </h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Consumption From</h1>
+                  <h1 className="text-xs font-bold">{formattedDateTime}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Consumption To</h1>
+                  <h1 className="text-xs font-bold">{formattedDateTime}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Reading</h1>
+                  <h1 className="text-xs font-bold">200</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Consumed</h1>
+                  <h1 className="text-xs font-bold">10</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Amount</h1>
+                  <h1 className="text-2xl font-bold">₱100</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Arrears</h1>
+                  <h1 className="text-2xl font-bold">₱150</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Total Due</h1>
+                  <h1 className="text-2xl font-bold">₱350</h1>
+                </div>
+              </div>
+              <h1>=============================</h1>
+              <h1>Contact Us</h1>
+              <div className="flex w-full mt-3 justify-between items-center">
+                <h1>PhilCom</h1>
+                <h1 className="text-sm font-bold">088-5650-278</h1>
+              </div>
+              <div className="flex w-full mt-3 justify-between items-center">
+                <h1>Globe</h1>
+                <h1 className="text-sm font-bold">0917-1629-094</h1>
+              </div>
+              <div className="flex w-full mt-3 justify-between items-center">
+                <h1>Webisite</h1>
+                <h1 className="text-sm font-bold">villanuevamisor.gov.ph</h1>
+              </div>
+              <div className="flex w-full mt-3 justify-between items-center">
+                <h1>Facebook</h1>
+                <h1 className="text-sm font-bold">
+                  facebook.com/LGUVillanueva
+                </h1>
+              </div>
+              <h1>=============================</h1>
+            </div>
+          ) : (
+            <p>No data available.</p>
+          )}
+        </Modal.Body>
+      </Modal>
+
       <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
         <Modal.Header>Monthly Bills</Modal.Header>
         <Modal.Body>
@@ -269,7 +373,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
                       </span>
                     )}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="flex items-center justify-start">
                     <Button
                       color="failure"
                       size="xs"
@@ -277,6 +381,14 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
                       onClick={() => deleteBill(bill.id)}
                     >
                       Delete
+                    </Button>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      className="rounded px-3 py-1 text-sm font-medium ml-3"
+                      onClick={() => handleViewReceipt(bill)}
+                    >
+                      Receipts
                     </Button>
                   </Table.Cell>
                 </Table.Row>
@@ -432,7 +544,11 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
             </span>
           </Table.Cell>
           <Table.Cell className="p-4 flex flex-wrap gap-2">
-            <BillModal userId={user.id} connection={user.connection} />
+            <BillModal
+              userId={user.id}
+              user={user}
+              connection={user.connection}
+            />
             {localStorage.getItem("role") !== "meter" && (
               <PayBillingModal userId={user.id} />
             )}
