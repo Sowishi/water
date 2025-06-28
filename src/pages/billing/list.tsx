@@ -93,16 +93,36 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
   const [currentReading, setCurrentReading] = useState("");
   const [amount, setAmount] = useState("");
   const [deadline, setDeadline] = useState("");
-  const rates: Record<string, number> = {
-    Resedential: 10,
-    Comercial: 15,
-    Industrial: 20,
+  const rateTable: Record<string, { min: number; succ: number }> = {
+    Resedential: { min: 10, succ: 12 },
+    Comercial: { min: 25, succ: 30 },
+    Industrial: { min: 35, succ: 40 },
+  };
+
+  const calculateAmount = (conn: string, consumption: number) => {
+    const rates = rateTable[conn];
+    if (!rates) return 0;
+    if (consumption <= 10) {
+      return consumption * rates.min;
+    }
+    return 10 * rates.min + (consumption - 10) * rates.succ;
   };
   const { getBillsByUser, addBill, deleteBill, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
 
   const [showReceipt, setShowReceipt] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+
+  const consumption = selectedBill
+    ? Math.max(selectedBill.currentReading - selectedBill.prevReading, 0)
+    : 0;
+  const amountDue = selectedBill ? calculateAmount(connection, consumption) : 0;
+  const arrears = selectedBill
+    ? bills
+        .filter((b) => !b.paidDate && b.id !== selectedBill.id)
+        .reduce((sum, b) => sum + Number(b.amount), 0)
+    : 0;
+  const totalDue = amountDue + arrears;
 
   const handleViewReceipt = (bill: Bill) => {
     setSelectedBill(bill);
@@ -128,8 +148,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
     const prev = parseFloat(prevReading) || 0;
     const curr = parseFloat(currentReading) || 0;
     const consumption = Math.max(curr - prev, 0);
-    const rate = rates[connection] ?? 0;
-    setAmount(String(consumption * rate));
+    setAmount(String(calculateAmount(connection, consumption)));
   }, [prevReading, currentReading, connection]);
 
   const handleAdd = () => {
@@ -209,31 +228,37 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Consumption From</h1>
-                  <h1 className="text-xs font-bold">{formattedDateTime}</h1>
+                  <h1 className="text-xs font-bold">
+                    {selectedBill.prevReading}
+                  </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Consumption To</h1>
-                  <h1 className="text-xs font-bold">{formattedDateTime}</h1>
+                  <h1 className="text-xs font-bold">
+                    {selectedBill.currentReading}
+                  </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Reading</h1>
-                  <h1 className="text-xs font-bold">200</h1>
+                  <h1 className="text-xs font-bold">
+                    {selectedBill.currentReading}
+                  </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Consumed</h1>
-                  <h1 className="text-xs font-bold">10</h1>
+                  <h1 className="text-xs font-bold">{consumption}</h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Amount</h1>
-                  <h1 className="text-2xl font-bold">₱100</h1>
+                  <h1 className="text-2xl font-bold">₱{amountDue}</h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Arrears</h1>
-                  <h1 className="text-2xl font-bold">₱150</h1>
+                  <h1 className="text-2xl font-bold">₱{arrears}</h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Total Due</h1>
-                  <h1 className="text-2xl font-bold">₱350</h1>
+                  <h1 className="text-2xl font-bold">₱{totalDue}</h1>
                 </div>
               </div>
               <h1>=============================</h1>
