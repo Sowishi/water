@@ -153,7 +153,11 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
 
   return (
     <>
-      <Button size="xs" onClick={() => setOpen(true)}>
+      <Button
+        size="xs"
+        onClick={() => setOpen(true)}
+        className="bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm"
+      >
         View Billing
       </Button>
       <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
@@ -206,7 +210,12 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
             </div>
             <div>
               <Label htmlFor="amount" value="Amount" />
-              <TextInput id="amount" value={amount} readOnly />
+              <TextInput
+                id="amount"
+                value={amount}
+                readOnly
+                className="bg-gray-100 dark:bg-gray-700"
+              />
             </div>
             <div>
               <Label htmlFor="deadline" value="Deadline" />
@@ -220,7 +229,12 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
           </div>
 
           <div className="flex justify-end mb-6">
-            <Button onClick={handleAdd}>Add Bill</Button>
+            <Button
+              onClick={handleAdd}
+              className="bg-green-600 hover:bg-green-700 text-white rounded shadow-sm"
+            >
+              Add Bill
+            </Button>
           </div>
 
           <Table hoverable striped>
@@ -235,25 +249,31 @@ const BillModal: FC<BillModalProps> = ({ userId, connection }) => {
             </Table.Head>
             <Table.Body className="text-sm">
               {bills.map((bill) => (
-                <Table.Row key={bill.id}>
+                <Table.Row
+                  key={bill.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
                   <Table.Cell>{bill.month}</Table.Cell>
                   <Table.Cell>{bill.prevReading}</Table.Cell>
                   <Table.Cell>{bill.currentReading}</Table.Cell>
-                  <Table.Cell>${bill.amount}</Table.Cell>
+                  <Table.Cell>₱{bill.amount}</Table.Cell>
                   <Table.Cell>{bill.deadline}</Table.Cell>
                   <Table.Cell>
                     {bill.paidDate ? (
-                      <span className="text-green-600">
+                      <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs font-semibold">
                         Paid on {bill.paidDate}
                       </span>
                     ) : (
-                      <span className="text-red-600">Unpaid</span>
+                      <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs font-semibold">
+                        Unpaid
+                      </span>
                     )}
                   </Table.Cell>
-                  <Table.Cell className="space-x-2">
+                  <Table.Cell>
                     <Button
                       color="failure"
                       size="xs"
+                      className="rounded px-3 py-1 text-sm font-medium"
                       onClick={() => deleteBill(bill.id)}
                     >
                       Delete
@@ -360,36 +380,58 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
 
 const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
   <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-    <Table.Head className="bg-gray-100 dark:bg-gray-700">
-      <Table.HeadCell>Name</Table.HeadCell>
-      <Table.HeadCell>Meter ID</Table.HeadCell>
-      <Table.HeadCell>Status</Table.HeadCell>
-      <Table.HeadCell>Manage</Table.HeadCell>
+    <Table.Head className="bg-gray-50 dark:bg-gray-800">
+      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Name
+      </Table.HeadCell>
+      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Meter ID
+      </Table.HeadCell>
+      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Status
+      </Table.HeadCell>
+      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Manage
+      </Table.HeadCell>
     </Table.Head>
     <Table.Body className="divide-y divide-gray-200 dark:divide-gray-700">
       {users.map((user) => (
         <Table.Row
           key={user.id}
-          className="hover:bg-gray-100 dark:hover:bg-gray-700"
+          className="transition duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white items-center mr-2 justify-start flex">
-            <img className="w-[30px]" src={user.profilePic} alt="" />
-            {user.firstName} {user.lastName}
-          </Table.Cell>
-          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white">
-            {user.meterID}
+          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white flex items-center space-x-3">
+            <img
+              className="w-[36px] h-[36px] rounded-full object-cover border border-gray-300 dark:border-gray-600"
+              src={user.profilePic}
+              alt="avatar"
+            />
+            <span>
+              {user.firstName} {user.lastName}
+            </span>
           </Table.Cell>
           <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
-            <div className="flex items-center">
-              <div
-                className={`mr-2 h-2.5 w-2.5 rounded-full ${
-                  user.status === "active" ? "bg-green-400" : "bg-red-400"
-                }`}
-              ></div>
-              {user.status === "active" ? "Active" : "Disconnected"}
-            </div>
+            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
+              {user.meterID}
+            </span>
           </Table.Cell>
-          <Table.Cell className="p-4 space-x-2 flex">
+          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+            <span
+              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                user.status === "active"
+                  ? "bg-green-100 text-green-800 dark:bg-green-200"
+                  : "bg-red-100 text-red-800 dark:bg-red-200"
+              }`}
+            >
+              <span
+                className={`mr-1 h-2 w-2 rounded-full ${
+                  user.status === "active" ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></span>
+              {user.status === "active" ? "Active" : "Disconnected"}
+            </span>
+          </Table.Cell>
+          <Table.Cell className="p-4 flex flex-wrap gap-2">
             <BillModal userId={user.id} connection={user.connection} />
             {localStorage.getItem("role") !== "meter" && (
               <PayBillingModal userId={user.id} />

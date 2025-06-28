@@ -1,25 +1,36 @@
 import type { FC } from "react";
-import { Button, DarkThemeToggle, Navbar } from "flowbite-react";
+import { DarkThemeToggle, Navbar } from "flowbite-react";
 
 const ExampleNavbar: FC = function () {
+  const role = localStorage.getItem("role");
+  const isMeter = role === "meter";
+
   return (
-    <Navbar fluid>
-      <div className="w-full bg-[#23404B] p-3 lg:px-5 lg:pl-3 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Navbar.Brand href="/">
-              <img alt="" src="/images/logo.png" className="mr-3 h-6 sm:h-8" />
-              <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
+    <Navbar fluid className="bg-[#23404B] shadow-md">
+      <div className="w-full px-4 py-3 lg:px-6 text-white">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          {/* Left: Logo and Branding */}
+          <Navbar.Brand
+            href="/"
+            className="flex items-center space-x-3 hover:opacity-90"
+          >
+            <img alt="Logo" src="/images/logo.png" className="h-8 sm:h-10" />
+            <div>
+              <div className="text-xl font-semibold leading-tight">
                 Water District
-                <span className="text-xs ml-3">
-                  {" "}
-                  Villanueva, Misamis Oriental
-                </span>
-              </span>
-            </Navbar.Brand>
-          </div>
-          <div className="flex items-center gap-3">
-            <DarkThemeToggle />
+              </div>
+              <div className="text-xs text-gray-300">
+                Villanueva, Misamis Oriental
+              </div>
+            </div>
+          </Navbar.Brand>
+
+          {/* Right: Role & Toggle */}
+          <div className="mt-3 flex items-center justify-between gap-4 lg:mt-0">
+            <span className="text-sm font-medium text-white border border-white rounded px-3 py-1">
+              Login as {isMeter ? "Meter Man" : "Teller"}
+            </span>
+            <DarkThemeToggle className="hover:scale-105 transition-transform" />
           </div>
         </div>
       </div>
