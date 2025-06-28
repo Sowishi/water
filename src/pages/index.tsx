@@ -68,12 +68,6 @@ const LatestCustomers: FC = function () {
         <h3 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
           Latest Customers
         </h3>
-        <a
-          href="#"
-          className="inline-flex items-center rounded-lg p-2 text-sm font-medium text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700"
-        >
-          View all
-        </a>
       </div>
       <div className="flow-root">
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -105,28 +99,6 @@ const LatestCustomers: FC = function () {
       </div>
       <div className="flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6">
         <Datepicker />
-        <div className="shrink-0">
-          <a
-            href="#"
-            className="inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700 sm:text-sm"
-          >
-            Sales Report
-            <svg
-              className="ml-1 h-4 w-4 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
   );
@@ -258,14 +230,6 @@ const LatestTransactions: FC = function () {
             This is a list of latest transactions
           </span>
         </div>
-        <div className="shrink-0">
-          <a
-            href="#"
-            className="rounded-lg p-2 text-sm font-medium text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700"
-          >
-            View all
-          </a>
-        </div>
       </div>
       <div className="mt-8 flex flex-col">
         <div className="overflow-x-auto rounded-lg">
@@ -311,28 +275,6 @@ const LatestTransactions: FC = function () {
       </div>
       <div className="flex items-center justify-between pt-3 sm:pt-6">
         <Datepicker />
-        <div className="shrink-0">
-          <a
-            href="#"
-            className="inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700 sm:text-sm"
-          >
-            Transactions Report
-            <svg
-              className="ml-1 h-4 w-4 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
   );
