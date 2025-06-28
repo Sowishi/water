@@ -7,6 +7,7 @@ import {
   HiClipboard,
   HiCollection,
   HiCurrencyDollar,
+  HiX,
   HiInformationCircle,
   HiLogin,
   HiPencil,
@@ -15,7 +16,12 @@ import {
   HiUsers,
 } from "react-icons/hi";
 
-const ExampleSidebar: FC = function () {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const ExampleSidebar: FC<SidebarProps> = function ({ isOpen, onClose }) {
   const [currentPage, setCurrentPage] = useState("");
 
   useEffect(() => {
@@ -28,7 +34,18 @@ const ExampleSidebar: FC = function () {
   const isMeter = role === "meter";
 
   return (
-    <Sidebar aria-label="Sidebar with multi-level dropdown example">
+    <Sidebar
+      aria-label="Sidebar with multi-level dropdown example"
+      className={`fixed top-0 left-0 z-40 h-screen w-64 transition-transform bg-white dark:bg-gray-800 lg:static lg:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-2 right-2 rounded p-1 text-gray-500 hover:bg-gray-100 lg:hidden"
+      >
+        <HiX className="h-5 w-5" />
+      </button>
       <div className="flex h-full flex-col justify-between py-2">
         <div>
           <form className="pb-3 md:hidden">

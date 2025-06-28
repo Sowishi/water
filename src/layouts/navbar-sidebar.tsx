@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { FC, PropsWithChildren } from "react";
 import Navbar from "../components/navbar";
 import Sidebar from "../components/sidebar";
@@ -8,11 +9,19 @@ interface NavbarSidebarLayoutProps {
 
 const NavbarSidebarLayout: FC<PropsWithChildren<NavbarSidebarLayoutProps>> =
   function ({ children, isFooter = true }) {
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+
     return (
       <>
-        <Navbar />
+        <Navbar onSidebarToggle={() => setSidebarOpen((prev) => !prev)} />
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         <div className="flex items-start pt-16">
-          <Sidebar />
+          <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
           <MainContent isFooter={isFooter}>{children}</MainContent>
         </div>
       </>
