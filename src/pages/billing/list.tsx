@@ -15,6 +15,7 @@ import { increment } from "firebase/firestore";
 import useCrudBill from "../../hooks/useCrudBill";
 import { HiHome } from "react-icons/hi";
 import logo from "../../../public/images/logo.png";
+import { usePDF } from "react-to-pdf";
 
 interface Bill {
   id: string;
@@ -99,6 +100,8 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
     Industrial: { min: 35, succ: 40 },
   };
 
+  const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
+
   const calculateAmount = (conn: string, consumption: number) => {
     const rates = rateTable[conn];
     if (!rates) return 0;
@@ -125,8 +128,64 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
   const totalDue = amountDue + arrears;
 
   const handleViewReceipt = (bill: Bill) => {
-    setSelectedBill(bill);
-    setShowReceipt(true);
+    const consumption = Math.max(bill.currentReading - bill.prevReading, 0);
+    const amountDue = calculateAmount(connection, consumption);
+    const arrears = bills
+      .filter((b) => !b.paidDate && b.id !== bill.id)
+      .reduce((sum, b) => sum + Number(b.amount), 0);
+    const totalDue = amountDue + arrears;
+
+    const now = new Date();
+    const formattedDateTime = now.toLocaleString("en-PH", {
+      dateStyle: "long",
+      timeStyle: "short",
+    });
+
+    const receiptWindow = window.open("", "_blank");
+    if (receiptWindow) {
+      receiptWindow.document.write(`
+        <html>
+          <head>
+            <title>Billing Receipt</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .center { text-align: center; }
+              .bold { font-weight: bold; }
+              .row { display: flex; justify-content: space-between; margin-top: 10px; }
+              .divider { margin: 20px 0; border-top: 1px dashed #000; }
+            </style>
+          </head>
+          <body>
+            <div class="center">
+              <img src="${logo}" width="130" />
+              <h2>VILLANUEVA WATER SYSTEM</h2>
+              <p>LGU Villanueva<br>Misamin, Oriental</p>
+            </div>
+            <p class="center">${formattedDateTime}</p>
+            <div class="divider"></div>
+            <div class="row"><span>Account Number:</span><span class="bold">${user?.meterID}</span></div>
+            <div class="row"><span>Account Name:</span><span class="bold">${user?.firstName} ${user?.lastName}</span></div>
+            <div class="row"><span>Connection Type:</span><span class="bold">${user?.connection}</span></div>
+            <div class="row"><span>Address:</span><span class="bold">${user?.address}</span></div>
+            <div class="row"><span>Consumption From:</span><span class="bold">${bill.prevReading}</span></div>
+            <div class="row"><span>Consumption To:</span><span class="bold">${bill.currentReading}</span></div>
+            <div class="row"><span>Reading:</span><span class="bold">${bill.currentReading}</span></div>
+            <div class="row"><span>Consumed:</span><span class="bold">${consumption}</span></div>
+            <div class="row"><span>Amount:</span><span class="bold">₱${amountDue}</span></div>
+            <div class="row"><span>Arrears:</span><span class="bold">₱${arrears}</span></div>
+            <div class="row"><span>Total Due:</span><span class="bold">₱${totalDue}</span></div>
+            <div class="divider"></div>
+            <div class="center bold">Contact Us</div>
+            <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
+            <div class="row"><span>Globe:</span><span class="bold">0917-1629-094</span></div>
+            <div class="row"><span>Website:</span><span class="bold">villanuevamisor.gov.ph</span></div>
+            <div class="row"><span>Facebook:</span><span class="bold">facebook.com/LGUVillanueva</span></div>
+            <script>window.onload = function() { window.print(); }</script>
+          </body>
+        </html>
+      `);
+      receiptWindow.document.close();
+    }
   };
 
   useEffect(() => {
@@ -190,7 +249,10 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
         <Modal.Header>Billing Receipt</Modal.Header>
         <Modal.Body>
           {selectedBill ? (
-            <div className="wrapper flex justify-center items-center flex-col dark:text-white">
+            <div
+              ref={targetRef}
+              className="wrapper flex justify-center items-center flex-col dark:text-white"
+            >
               <div className="flex flex-col items-center justify-center">
                 <img width={130} src={logo} alt="" />
                 <div className="text-center mt-5">
@@ -282,6 +344,9 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             <p>No data available.</p>
           )}
         </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => toPDF()}>Download</Button>
+        </Modal.Footer>
       </Modal>
 
       <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
@@ -411,7 +476,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                       className="rounded px-3 py-1 text-sm font-medium ml-3"
                       onClick={() => handleViewReceipt(bill)}
                     >
-                      Receipts
+                      Receipt
                     </Button>
                   </Table.Cell>
                 </Table.Row>
