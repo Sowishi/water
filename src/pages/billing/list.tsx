@@ -430,9 +430,10 @@ interface BillingUsersTableProps {
 
 interface PayBillingModalProps {
   userId: string;
+  user: Object;
 }
 
-const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
+const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [billId, setBillId] = useState("");
@@ -456,15 +457,81 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId }) => {
         status: "active",
         balance: increment(-(bill ? Number(bill.amount) : 0)),
       });
-      const receipt = window.open("", "", "width=600,height=400");
-      if (receipt && bill) {
-        receipt.document.write(`<h1>Payment Receipt</h1>`);
-        receipt.document.write(`<p>Month: ${bill.month}</p>`);
-        receipt.document.write(`<p>Amount: ${bill.amount}</p>`);
-        receipt.document.write(`<p>Paid Date: ${date}</p>`);
-        receipt.print();
-        receipt.close();
+
+      if (bill) {
+        const now = new Date();
+        const formattedDateTime = now.toLocaleString("en-PH", {
+          dateStyle: "long",
+          timeStyle: "short",
+        });
+
+        const receiptWindow = window.open("", "_blank");
+        if (receiptWindow) {
+          receiptWindow.document.write(`
+            <html>
+              <head>
+                <title>Billing Receipt</title>
+                <style>
+                  body { font-family: Arial, sans-serif; padding: 20px; }
+                  .center { text-align: center; }
+                  .bold { font-weight: bold; }
+                  .section { margin-top: 20px; }
+                  .row { display: flex; justify-content: space-between; margin-top: 10px; }
+                  .divider { margin: 20px 0; border-top: 1px dashed #000; }
+                </style>
+              </head>
+              <body>
+                <div class="center">
+                  <img src="${logo}" width="130" />
+                  <h2>VILLANUEVA WATER SYSTEM</h2>
+                  <p>LGU Villanueva<br>Misamin, Oriental</p>
+                </div>
+                <div class="section">${formattedDateTime}</div>
+                <div class="divider"></div>
+                <div class="section">
+                  <div class="row"><span>Account Number:</span><span class="bold">${
+                    user?.meterID || "-"
+                  }</span></div>
+                  <div class="row"><span>Account Name:</span><span class="bold">${
+                    user?.firstName || ""
+                  } ${user?.lastName || ""}</span></div>
+                  <div class="row"><span>Connection Type:</span><span class="bold">${
+                    user?.connection || "-"
+                  }</span></div>
+                  <div class="row"><span>Address:</span><span class="bold">${
+                    user.address || "-"
+                  }</span></div>
+                  <div class="row"><span>Month:</span><span class="bold">${
+                    bill.month
+                  }</span></div>
+                  <div class="row"><span>Reading:</span><span class="bold">${
+                    bill.currentReading
+                  }</span></div>
+                  <div class="row"><span>Paid Date:</span><span class="bold">${date}</span></div>
+                  <div class="row"><span>Amount Paid:</span><span class="bold">₱${
+                    bill.amount
+                  }</span></div>
+                </div>
+                <div class="divider"></div>
+                <div class="section center">
+                  <p class="bold">Contact Us</p>
+                  <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
+                  <div class="row"><span>Globe:</span><span class="bold">0917-1629-094</span></div>
+                  <div class="row"><span>Website:</span><span class="bold">villanuevamisor.gov.ph</span></div>
+                  <div class="row"><span>Facebook:</span><span class="bold">facebook.com/LGUVillanueva</span></div>
+                </div>
+                <script>
+                  window.onload = function () {
+                    window.print();
+                  };
+                </script>
+              </body>
+            </html>
+          `);
+          receiptWindow.document.close();
+        }
       }
+
       setOpen(false);
       setDate("");
       setBillId("");
@@ -581,7 +648,7 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
               connection={user.connection}
             />
             {localStorage.getItem("role") !== "meter" && (
-              <PayBillingModal userId={user.id} />
+              <PayBillingModal user={user} userId={user.id} />
             )}
           </Table.Cell>
         </Table.Row>
