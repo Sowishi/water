@@ -111,12 +111,12 @@ const ExampleSidebar: FC<SidebarProps> = function ({ isOpen, onClose }) {
                   Generate Reports
                 </Sidebar.Item>
 
-                <Sidebar.Item
+                {/* <Sidebar.Item
                   href="https://github.com/themesberg/flowbite-react/issues"
                   icon={HiInformationCircle}
                 >
                   Account Setiings
-                </Sidebar.Item>
+                </Sidebar.Item> */}
                 <Sidebar.Item
                   href="/"
                   icon={HiPencil}

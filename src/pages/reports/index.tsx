@@ -25,12 +25,12 @@ interface User {
   meterID: string;
 }
 
-const ReportsPage: FC = function () {
+const ReportsPage: FC = () => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const { getBills } = useCrudBill();
   const { getUsers } = useCrudUser();
-  const { toPDF, targetRef } = usePDF({ filename: "reports.pdf" });
+  const { toPDF, targetRef } = usePDF({ filename: "billing-reports.pdf" });
 
   useEffect(() => {
     getBills(setBills);
@@ -41,58 +41,69 @@ const ReportsPage: FC = function () {
 
   return (
     <NavbarSidebarLayout isFooter={false}>
-      <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <section className="border-b border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
         <div className="mb-4">
-          <Breadcrumb className="mb-2">
+          <Breadcrumb className="mb-3">
             <Breadcrumb.Item href="#">
               <HiHome className="mr-2 text-xl" />
               <span className="dark:text-white">Home</span>
             </Breadcrumb.Item>
             <Breadcrumb.Item>Reports</Breadcrumb.Item>
           </Breadcrumb>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
               Billing Reports
             </h1>
-            <div className="space-x-2">
-              <Button size="xs" onClick={() => window.print()}>
+            <div className="mt-4 sm:mt-0 space-x-2 flex">
+              <Button size="sm" onClick={() => window.print()}>
                 Print
               </Button>
-              <Button size="xs" onClick={() => toPDF()}>
+              <Button size="sm" onClick={toPDF}>
                 Download PDF
               </Button>
             </div>
           </div>
         </div>
-      </div>
-      <div className="p-4" ref={targetRef}>
-        <Table striped>
-          <Table.Head>
+      </section>
+
+      <div className="p-6 overflow-x-auto" ref={targetRef}>
+        <Table hoverable striped>
+          <Table.Head className="text-sm uppercase tracking-wide bg-gray-100 dark:bg-gray-700">
             <Table.HeadCell>Name</Table.HeadCell>
             <Table.HeadCell>Meter ID</Table.HeadCell>
             <Table.HeadCell>Month</Table.HeadCell>
-            <Table.HeadCell>Prev</Table.HeadCell>
+            <Table.HeadCell>Previous</Table.HeadCell>
             <Table.HeadCell>Current</Table.HeadCell>
             <Table.HeadCell>Amount</Table.HeadCell>
             <Table.HeadCell>Deadline</Table.HeadCell>
             <Table.HeadCell>Status</Table.HeadCell>
           </Table.Head>
-          <Table.Body className="bg-white dark:bg-gray-800">
+          <Table.Body className="bg-white dark:bg-gray-900">
             {bills.map((bill) => {
               const user = getUser(bill.userId);
               return (
-                <Table.Row key={bill.id} className="whitespace-nowrap">
+                <Table.Row key={bill.id} className="whitespace-nowrap text-sm">
                   <Table.Cell>
                     {user ? `${user.firstName} ${user.lastName}` : "-"}
                   </Table.Cell>
-                  <Table.Cell>{user ? user.meterID : "-"}</Table.Cell>
+                  <Table.Cell>{user?.meterID || "-"}</Table.Cell>
                   <Table.Cell>{bill.month}</Table.Cell>
                   <Table.Cell>{bill.prevReading}</Table.Cell>
                   <Table.Cell>{bill.currentReading}</Table.Cell>
-                  <Table.Cell>₱{bill.amount}</Table.Cell>
+                  <Table.Cell className="text-green-600 dark:text-green-400">
+                    ₱{bill.amount}
+                  </Table.Cell>
                   <Table.Cell>{bill.deadline}</Table.Cell>
                   <Table.Cell>
-                    {bill.paidDate ? `Paid on ${bill.paidDate}` : "Unpaid"}
+                    {bill.paidDate ? (
+                      <span className="text-green-600 dark:text-green-400">
+                        Paid on {bill.paidDate}
+                      </span>
+                    ) : (
+                      <span className="text-red-600 dark:text-red-400">
+                        Unpaid
+                      </span>
+                    )}
                   </Table.Cell>
                 </Table.Row>
               );
