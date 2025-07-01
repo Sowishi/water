@@ -511,6 +511,9 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   useEffect(() => {
     if (isOpen) {
       getBillsByUser(userId, setBills);
+      // Default the paid date to today's date when the modal opens
+      const today = new Date().toISOString().slice(0, 10);
+      setDate(today);
     }
   }, [isOpen]);
 
