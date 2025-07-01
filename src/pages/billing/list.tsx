@@ -2,6 +2,7 @@
 import {
   Breadcrumb,
   Button,
+  Checkbox,
   Label,
   Modal,
   Table,
@@ -501,7 +502,8 @@ interface PayBillingModalProps {
 const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
-  const [billId, setBillId] = useState("");
+  const [selectedBillIds, setSelectedBillIds] = useState<string[]>([]);
+  const [payAll, setPayAll] = useState(false);
   const [date, setDate] = useState("");
   const { getBillsByUser, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
@@ -514,92 +516,102 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
 
   const unpaidBills = bills.filter((b) => !b.paidDate);
 
+  const printReceipt = (bill: Bill) => {
+    const now = new Date();
+    const formattedDateTime = now.toLocaleString("en-PH", {
+      dateStyle: "long",
+      timeStyle: "short",
+    });
+
+    const receiptWindow = window.open("", "_blank");
+    if (receiptWindow) {
+      receiptWindow.document.write(`
+        <html>
+          <head>
+            <title>Billing Receipt</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .center { text-align: center; }
+              .bold { font-weight: bold; }
+              .section { margin-top: 20px; }
+              .row { display: flex; justify-content: space-between; margin-top: 10px; }
+              .divider { margin: 20px 0; border-top: 1px dashed #000; }
+            </style>
+          </head>
+          <body>
+            <div class="center">
+              <img src="${logo}" width="130" />
+              <h2>VILLANUEVA WATER SYSTEM</h2>
+              <p>LGU Villanueva<br>Misamin, Oriental</p>
+            </div>
+            <div class="section">${formattedDateTime}</div>
+            <div class="divider"></div>
+            <div class="section">
+              <div class="row"><span>Account Number:</span><span class="bold">${
+                user?.meterID || "-"
+              }</span></div>
+              <div class="row"><span>Account Name:</span><span class="bold">${
+                user?.firstName || ""
+              } ${user?.lastName || ""}</span></div>
+              <div class="row"><span>Connection Type:</span><span class="bold">${
+                user?.connection || "-"
+              }</span></div>
+              <div class="row"><span>Address:</span><span class="bold">${
+                user.address || "-"
+              }</span></div>
+              <div class="row"><span>Month:</span><span class="bold">${
+                bill.month
+              }</span></div>
+              <div class="row"><span>Reading:</span><span class="bold">${
+                bill.currentReading
+              }</span></div>
+              <div class="row"><span>Paid Date:</span><span class="bold">${date}</span></div>
+              <div class="row"><span>Amount Paid:</span><span class="bold">₱${
+                bill.amount
+              }</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="section center">
+              <p class="bold">Contact Us</p>
+              <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
+              <div class="row"><span>Globe:</span><span class="bold">0917-1629-094</span></div>
+              <div class="row"><span>Website:</span><span class="bold">villanuevamisor.gov.ph</span></div>
+              <div class="row"><span>Facebook:</span><span class="bold">facebook.com/LGUVillanueva</span></div>
+            </div>
+            <script>
+              window.onload = function () {
+                window.print();
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      receiptWindow.document.close();
+    }
+  };
+
   const handlePay = () => {
-    if (billId && date) {
-      const bill = bills.find((b) => b.id === billId);
-      updateBill(billId, { paidDate: date });
-      updateUser(userId, {
-        status: "active",
-        balance: increment(-(bill ? Number(bill.amount) : 0)),
+    const billsToPay = payAll
+      ? unpaidBills
+      : bills.filter((b) => selectedBillIds.includes(b.id));
+
+    if (billsToPay.length > 0 && date) {
+      billsToPay.forEach((b) => {
+        updateBill(b.id, { paidDate: date });
+        printReceipt(b);
       });
 
-      if (bill) {
-        const now = new Date();
-        const formattedDateTime = now.toLocaleString("en-PH", {
-          dateStyle: "long",
-          timeStyle: "short",
-        });
+      const total = billsToPay.reduce((sum, b) => sum + Number(b.amount), 0);
 
-        const receiptWindow = window.open("", "_blank");
-        if (receiptWindow) {
-          receiptWindow.document.write(`
-            <html>
-              <head>
-                <title>Billing Receipt</title>
-                <style>
-                  body { font-family: Arial, sans-serif; padding: 20px; }
-                  .center { text-align: center; }
-                  .bold { font-weight: bold; }
-                  .section { margin-top: 20px; }
-                  .row { display: flex; justify-content: space-between; margin-top: 10px; }
-                  .divider { margin: 20px 0; border-top: 1px dashed #000; }
-                </style>
-              </head>
-              <body>
-                <div class="center">
-                  <img src="${logo}" width="130" />
-                  <h2>VILLANUEVA WATER SYSTEM</h2>
-                  <p>LGU Villanueva<br>Misamin, Oriental</p>
-                </div>
-                <div class="section">${formattedDateTime}</div>
-                <div class="divider"></div>
-                <div class="section">
-                  <div class="row"><span>Account Number:</span><span class="bold">${
-                    user?.meterID || "-"
-                  }</span></div>
-                  <div class="row"><span>Account Name:</span><span class="bold">${
-                    user?.firstName || ""
-                  } ${user?.lastName || ""}</span></div>
-                  <div class="row"><span>Connection Type:</span><span class="bold">${
-                    user?.connection || "-"
-                  }</span></div>
-                  <div class="row"><span>Address:</span><span class="bold">${
-                    user.address || "-"
-                  }</span></div>
-                  <div class="row"><span>Month:</span><span class="bold">${
-                    bill.month
-                  }</span></div>
-                  <div class="row"><span>Reading:</span><span class="bold">${
-                    bill.currentReading
-                  }</span></div>
-                  <div class="row"><span>Paid Date:</span><span class="bold">${date}</span></div>
-                  <div class="row"><span>Amount Paid:</span><span class="bold">₱${
-                    bill.amount
-                  }</span></div>
-                </div>
-                <div class="divider"></div>
-                <div class="section center">
-                  <p class="bold">Contact Us</p>
-                  <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
-                  <div class="row"><span>Globe:</span><span class="bold">0917-1629-094</span></div>
-                  <div class="row"><span>Website:</span><span class="bold">villanuevamisor.gov.ph</span></div>
-                  <div class="row"><span>Facebook:</span><span class="bold">facebook.com/LGUVillanueva</span></div>
-                </div>
-                <script>
-                  window.onload = function () {
-                    window.print();
-                  };
-                </script>
-              </body>
-            </html>
-          `);
-          receiptWindow.document.close();
-        }
-      }
+      updateUser(userId, {
+        status: "active",
+        balance: increment(-total),
+      });
 
       setOpen(false);
       setDate("");
-      setBillId("");
+      setSelectedBillIds([]);
+      setPayAll(false);
     }
   };
 
@@ -612,20 +624,37 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
         <Modal.Header>Pay Billing</Modal.Header>
         <Modal.Body>
           <div className="mb-4">
-            <Label htmlFor="bill" value="Bill" />
+            <Label htmlFor="bill" value="Bills" />
             <select
+              multiple
               id="bill"
               className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-              value={billId}
-              onChange={(e) => setBillId(e.target.value)}
+              value={selectedBillIds}
+              onChange={(e) =>
+                setSelectedBillIds(
+                  Array.from(e.target.selectedOptions, (opt) => opt.value)
+                )
+              }
+              disabled={payAll}
             >
-              <option value="">Select Bill</option>
               {unpaidBills.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.month}
                 </option>
               ))}
             </select>
+          </div>
+          <div className="mb-4 flex items-center space-x-2">
+            <Checkbox
+              id="payAll"
+              checked={payAll}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setPayAll(checked);
+                setSelectedBillIds(checked ? unpaidBills.map((b) => b.id) : []);
+              }}
+            />
+            <Label htmlFor="payAll">Pay all unpaid months</Label>
           </div>
           <div className="mb-4">
             <Label htmlFor="date" value="Paid Date" />
