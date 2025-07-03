@@ -32,11 +32,13 @@ interface User {
   phone?: string;
   connection: string;
   meterID: string;
+  street: string;
+  barangay: string;
   address: string;
   status: string;
   profilePic: string;
   balance?: string;
-  history?: string[];
+  history?: any[];
 }
 
 interface DeleteUserModalProps {
@@ -116,8 +118,9 @@ const AddUserModal: FC = function () {
     phone: "",
     meterID: "",
     connection: "Resedential",
-    address: "",
-    status: "active",
+    street: "",
+    barangay: "",
+    status: "pending",
     balance: "750",
   });
 
@@ -141,7 +144,8 @@ const AddUserModal: FC = function () {
   };
 
   const handleSubmit = async () => {
-    const userId = await addUser(forms);
+    const address = `${forms.street}, ${forms.barangay}`;
+    const userId = await addUser({ ...forms, address });
     if (userId) {
       addBill({
         userId,
@@ -241,14 +245,29 @@ const AddUserModal: FC = function () {
               </div>
             </div>
             <div>
-              <Label htmlFor="company">Address</Label>
+              <Label htmlFor="street">Street</Label>
               <div className="mt-1">
                 <TextInput
-                  id="company"
-                  name="address"
-                  placeholder="Somewhere"
+                  id="street"
+                  name="street"
+                  placeholder="123 Street"
                   onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="barangay">Barangay</Label>
+              <div className="mt-1">
+                <Select
+                  id="barangay"
+                  name="barangay"
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                >
+                  <option value="">Select Barangay</option>
+                  <option value="Barangay 1">Barangay 1</option>
+                  <option value="Barangay 2">Barangay 2</option>
+                  <option value="Barangay 3">Barangay 3</option>
+                </Select>
               </div>
             </div>
           </div>
@@ -313,9 +332,9 @@ const AllUsersTable: FC = function () {
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
                     <div
                       className="max-w-[200px] truncate"
-                      title={user.address}
+                      title={`${user.street}, ${user.barangay}`}
                     >
-                      {user.address}
+                      {user.street}, {user.barangay}
                     </div>
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
@@ -330,10 +349,16 @@ const AllUsersTable: FC = function () {
                         className={`mr-2 h-2.5 w-2.5 rounded-full ${
                           user.status === "active"
                             ? "bg-green-400"
-                            : "bg-red-400"
+                            : user.status === "pending"
+                              ? "bg-yellow-400"
+                              : "bg-red-400"
                         }`}
                       ></div>
-                      {user.status === "active" ? "Active" : "Disconnected"}
+                      {user.status === "active"
+                        ? "Active"
+                        : user.status === "pending"
+                          ? "Pending"
+                          : "Disconnected"}
                     </div>
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
@@ -413,13 +438,31 @@ const ViewUserModal: FC<ViewUserModalProps> = function ({ user }) {
               <p className="font-medium">{user.connection}</p>
             </div>
             <div>
-              <Label value="Address" />
-              <p className="font-medium">{user.address}</p>
+              <Label value="Street" />
+              <p className="font-medium">{user.street}</p>
+            </div>
+            <div>
+              <Label value="Barangay" />
+              <p className="font-medium">{user.barangay}</p>
             </div>
             <div>
               <Label value="Status" />
               <p className="font-medium">{user.status}</p>
             </div>
+            {user.history && user.history.length > 0 && (
+              <div>
+                <Label value="History" />
+                <ul className="list-disc pl-5 space-y-1">
+                  {user.history.map((h, i) => (
+                    <li key={i} className="font-medium break-words">
+                      {typeof h === "string"
+                        ? h
+                        : `${h.updatedAt} - ${h.firstName} ${h.lastName}, ${h.street}, ${h.barangay}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </Modal.Body>
       </Modal>
@@ -444,7 +487,8 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
     phone: "",
     meterID: "",
     connection: "Resedential",
-    address: "",
+    street: "",
+    barangay: "",
     status: "active",
   });
 
@@ -452,6 +496,9 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
 
   useEffect(() => {
     if (isOpen) {
+      const [street = "", barangay = ""] = user.address
+        ? user.address.split(",").map((s) => s.trim())
+        : ["", ""];
       setForms({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -459,7 +506,8 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
         phone: user.phone ?? "",
         meterID: user.meterID,
         connection: user.connection,
-        address: user.address,
+        street: user.street ?? street,
+        barangay: user.barangay ?? barangay,
         status: user.status,
       });
     }
@@ -473,9 +521,22 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
 
   const handleSubmit = () => {
     const history = user.history ?? [];
+    const previous = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      meterID: user.meterID,
+      connection: user.connection,
+      street: user.street,
+      barangay: user.barangay,
+      status: user.status,
+      updatedAt: new Date().toISOString(),
+    };
     updateUser(user.id, {
       ...forms,
-      history: [...history, new Date().toISOString()],
+      address: `${forms.street}, ${forms.barangay}`,
+      history: [...history, previous],
     });
     setOpen(false);
   };
@@ -567,14 +628,30 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
               </div>
             </div>
             <div>
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="street-edit">Street</Label>
               <div className="mt-1">
                 <TextInput
-                  id="address"
-                  name="address"
-                  value={forms.address}
+                  id="street-edit"
+                  name="street"
+                  value={forms.street}
                   onChange={(e) => handleChange(e.target.value, e.target.name)}
                 />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="barangay-edit">Barangay</Label>
+              <div className="mt-1">
+                <Select
+                  id="barangay-edit"
+                  name="barangay"
+                  value={forms.barangay}
+                  onChange={(e) => handleChange(e.target.value, e.target.name)}
+                >
+                  <option value="">Select Barangay</option>
+                  <option value="Barangay 1">Barangay 1</option>
+                  <option value="Barangay 2">Barangay 2</option>
+                  <option value="Barangay 3">Barangay 3</option>
+                </Select>
               </div>
             </div>
           </div>

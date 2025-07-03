@@ -16,7 +16,7 @@ const useCrudUser = () => {
       const docRef = await addDoc(colRef, {
         ...user,
         profilePic,
-        status: user.status ?? "active",
+        status: user.status ?? "pending",
       });
       return docRef.id;
     } catch (error) {
