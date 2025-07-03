@@ -103,6 +103,20 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
 
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
 
+  const getMonthWithYear = (m: string, date: string) => {
+    if (!date) return m;
+    const year = new Date(date).getFullYear();
+    return `${m} ${year}`;
+  };
+
+  const getConsumptionRange = (bill: Bill) => {
+    const index = bills.findIndex((b) => b.id === bill.id);
+    const to = getMonthWithYear(bill.month, bill.deadline);
+    const fromBill = index > 0 ? bills[index - 1] : bill;
+    const from = getMonthWithYear(fromBill.month, fromBill.deadline);
+    return { from, to };
+  };
+
   const calculateAmount = (conn: string, consumption: number) => {
     const rates = rateTable[conn];
     if (!rates) return 0;
@@ -142,6 +156,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
       timeStyle: "short",
     });
 
+    const { from, to } = getConsumptionRange(bill);
     const receiptWindow = window.open("", "_blank");
     if (receiptWindow) {
       receiptWindow.document.write(`
@@ -168,8 +183,8 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             <div class="row"><span>Account Name:</span><span class="bold">${user?.firstName} ${user?.lastName}</span></div>
             <div class="row"><span>Connection Type:</span><span class="bold">${user?.connection}</span></div>
             <div class="row"><span>Address:</span><span class="bold">${user?.address}</span></div>
-            <div class="row"><span>Consumption From:</span><span class="bold">${bill.prevReading}</span></div>
-            <div class="row"><span>Consumption To:</span><span class="bold">${bill.currentReading}</span></div>
+            <div class="row"><span>Consumption From:</span><span class="bold">${from}</span></div>
+            <div class="row"><span>Consumption To:</span><span class="bold">${to}</span></div>
             <div class="row"><span>Reading:</span><span class="bold">${bill.currentReading}</span></div>
             <div class="row"><span>Consumed:</span><span class="bold">${consumption}</span></div>
             <div class="row"><span>Amount:</span><span class="bold">₱${amountDue}</span></div>
@@ -287,13 +302,13 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Consumption From</h1>
                   <h1 className="text-xs font-bold">
-                    {selectedBill.prevReading}
+                    {getConsumptionRange(selectedBill).from}
                   </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Consumption To</h1>
                   <h1 className="text-xs font-bold">
-                    {selectedBill.currentReading}
+                    {getConsumptionRange(selectedBill).to}
                   </h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
