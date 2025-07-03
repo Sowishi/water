@@ -14,7 +14,7 @@ import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
 import { increment } from "firebase/firestore";
 import useCrudBill from "../../hooks/useCrudBill";
-import { HiHome } from "react-icons/hi";
+import { HiHome, HiOutlineExclamationCircle } from "react-icons/hi";
 import logo from "../../../public/images/logo.png";
 import { usePDF } from "react-to-pdf";
 
@@ -463,28 +463,70 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                       </span>
                     )}
                   </Table.Cell>
-                  <Table.Cell className="flex items-center justify-start">
-                    <Button
-                      color="failure"
-                      size="xs"
-                      className="rounded px-3 py-1 text-sm font-medium"
-                      onClick={() => deleteBill(bill.id)}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      color="warning"
-                      size="xs"
-                      className="rounded px-3 py-1 text-sm font-medium ml-3"
-                      onClick={() => handleViewReceipt(bill)}
-                    >
-                      Receipt
-                    </Button>
-                  </Table.Cell>
+                    <Table.Cell className="flex items-center justify-start">
+                      <DeleteBillModal billId={bill.id} onDelete={deleteBill} />
+                      <Button
+                        color="warning"
+                        size="xs"
+                        className="rounded px-3 py-1 text-sm font-medium ml-3"
+                        onClick={() => handleViewReceipt(bill)}
+                      >
+                        Receipt
+                      </Button>
+                    </Table.Cell>
                 </Table.Row>
               ))}
               </Table.Body>
             </Table>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+};
+
+interface DeleteBillModalProps {
+  billId: string;
+  onDelete: (id: string) => void;
+}
+
+const DeleteBillModal: FC<DeleteBillModalProps> = ({ billId, onDelete }) => {
+  const [isOpen, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        color="failure"
+        size="xs"
+        className="rounded px-3 py-1 text-sm font-medium"
+        onClick={() => setOpen(true)}
+      >
+        Delete
+      </Button>
+      <Modal onClose={() => setOpen(false)} show={isOpen} size="md">
+        <Modal.Header className="px-6 pt-6 pb-0">
+          <span className="sr-only">Delete bill</span>
+        </Modal.Header>
+        <Modal.Body className="px-6 pt-0 pb-6">
+          <div className="flex flex-col items-center gap-y-6 text-center">
+            <HiOutlineExclamationCircle className="text-7xl text-red-500" />
+            <p className="text-xl text-gray-500">
+              Are you sure you want to delete this bill?
+            </p>
+            <div className="flex items-center gap-x-3">
+              <Button
+                color="failure"
+                onClick={() => {
+                  onDelete(billId);
+                  setOpen(false);
+                }}
+              >
+                Yes, I'm sure
+              </Button>
+              <Button color="gray" onClick={() => setOpen(false)}>
+                No, cancel
+              </Button>
+            </div>
           </div>
         </Modal.Body>
       </Modal>
