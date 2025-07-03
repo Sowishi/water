@@ -427,19 +427,20 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             </Button>
           </div>
 
-          <Table hoverable striped>
-            <Table.Head>
-              <Table.HeadCell>Month</Table.HeadCell>
-              <Table.HeadCell>Prev Reading</Table.HeadCell>
-              <Table.HeadCell>Current Reading</Table.HeadCell>
-              <Table.HeadCell>Connection Type</Table.HeadCell>
-              <Table.HeadCell>Amount</Table.HeadCell>
-              <Table.HeadCell>Deadline</Table.HeadCell>
-              <Table.HeadCell>Status</Table.HeadCell>
-              <Table.HeadCell>Actions</Table.HeadCell>
-            </Table.Head>
-            <Table.Body className="text-sm">
-              {bills.map((bill) => (
+          <div className="max-h-80 overflow-y-auto">
+            <Table hoverable striped>
+              <Table.Head>
+                <Table.HeadCell>Month</Table.HeadCell>
+                <Table.HeadCell>Prev Reading</Table.HeadCell>
+                <Table.HeadCell>Current Reading</Table.HeadCell>
+                <Table.HeadCell>Connection Type</Table.HeadCell>
+                <Table.HeadCell>Amount</Table.HeadCell>
+                <Table.HeadCell>Deadline</Table.HeadCell>
+                <Table.HeadCell>Status</Table.HeadCell>
+                <Table.HeadCell>Actions</Table.HeadCell>
+              </Table.Head>
+              <Table.Body className="text-sm">
+                {bills.map((bill) => (
                 <Table.Row
                   key={bill.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -482,8 +483,9 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                   </Table.Cell>
                 </Table.Row>
               ))}
-            </Table.Body>
-          </Table>
+              </Table.Body>
+            </Table>
+          </div>
         </Modal.Body>
       </Modal>
     </>
