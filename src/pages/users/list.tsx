@@ -19,6 +19,7 @@ import {
   HiEye,
   HiPlus,
   HiTrash,
+  HiClock,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import useCrudUser from "../../hooks/useCrudUser";
@@ -282,6 +283,45 @@ const AddUserModal: FC = function () {
   );
 };
 
+interface HistoryModalProps {
+  user: User;
+}
+
+const HistoryModal: FC<HistoryModalProps> = function ({ user }) {
+  const [isOpen, setOpen] = useState(false);
+  const history = user.history ?? [];
+  return (
+    <>
+      <Button color="gray" onClick={() => setOpen(true)} size="xs">
+        <div className="flex items-center gap-x-2">
+          <HiClock className="text-lg" />
+          History
+        </div>
+      </Button>
+      <Modal onClose={() => setOpen(false)} show={isOpen}>
+        <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
+          <strong>History</strong>
+        </Modal.Header>
+        <Modal.Body>
+          {history.length === 0 ? (
+            <p className="text-gray-500">No history</p>
+          ) : (
+            <ul className="list-disc space-y-1 pl-5">
+              {history.map((h, i) => (
+                <li key={i} className="font-medium break-words">
+                  {typeof h === "string"
+                    ? h
+                    : `${h.updatedAt} - ${h.firstName} ${h.lastName}, ${h.street}, ${h.barangay}`}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+};
+
 const AllUsersTable: FC = function () {
   const [users, setUsers] = useState<User[]>([]);
   const { getUsers, updateUser } = useCrudUser();
@@ -379,6 +419,7 @@ const AllUsersTable: FC = function () {
                   <Table.Cell>
                     <div className="flex items-center gap-x-3 whitespace-nowrap">
                       <ViewUserModal user={user} />
+                      <HistoryModal user={user} />
                       <EditUserModal user={user} />
                       <DeleteUserModal user={user} />
                     </div>
@@ -449,20 +490,6 @@ const ViewUserModal: FC<ViewUserModalProps> = function ({ user }) {
               <Label value="Status" />
               <p className="font-medium">{user.status}</p>
             </div>
-            {user.history && user.history.length > 0 && (
-              <div>
-                <Label value="History" />
-                <ul className="list-disc pl-5 space-y-1">
-                  {user.history.map((h, i) => (
-                    <li key={i} className="font-medium break-words">
-                      {typeof h === "string"
-                        ? h
-                        : `${h.updatedAt} - ${h.firstName} ${h.lastName}, ${h.street}, ${h.barangay}`}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         </Modal.Body>
       </Modal>
