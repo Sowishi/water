@@ -145,10 +145,15 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
   const handleViewReceipt = (bill: Bill) => {
     const consumption = Math.max(bill.currentReading - bill.prevReading, 0);
     const amountDue = calculateAmount(connection, consumption);
-    const arrears = bills
-      .filter((b) => !b.paidDate && b.id !== bill.id)
-      .reduce((sum, b) => sum + Number(b.amount), 0);
+    const arrearsBills = bills.filter((b) => !b.paidDate && b.id !== bill.id);
+    const arrears = arrearsBills.reduce((sum, b) => sum + Number(b.amount), 0);
     const totalDue = amountDue + arrears;
+    const arrearsDetails = arrearsBills
+      .map(
+        (b) =>
+          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`
+      )
+      .join("");
 
     const now = new Date();
     const formattedDateTime = now.toLocaleString("en-PH", {
@@ -188,7 +193,9 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             <div class="row"><span>Reading:</span><span class="bold">${bill.currentReading}</span></div>
             <div class="row"><span>Consumed:</span><span class="bold">${consumption}</span></div>
             <div class="row"><span>Amount:</span><span class="bold">₱${amountDue}</span></div>
-            <div class="row"><span>Arrears:</span><span class="bold">₱${arrears}</span></div>
+            <div class="row"><span class="bold">Arrears</span></div>
+            ${arrearsDetails}
+            <div class="row"><span>Total Arrears:</span><span class="bold">₱${arrears}</span></div>
             <div class="row"><span>Total Due:</span><span class="bold">₱${totalDue}</span></div>
             <div class="divider"></div>
             <div class="center bold">Contact Us</div>
@@ -327,6 +334,20 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Arrears</h1>
+                </div>
+                {bills
+                  .filter((b) => !b.paidDate && b.id !== selectedBill.id)
+                  .map((b) => (
+                    <div
+                      key={b.id}
+                      className="flex w-full mt-1 justify-between items-center text-xs"
+                    >
+                      <h1>{b.month}</h1>
+                      <h1 className="font-bold">₱{b.amount}</h1>
+                    </div>
+                  ))}
+                <div className="flex w-full mt-2 justify-between items-center">
+                  <h1>Total Arrears</h1>
                   <h1 className="text-2xl font-bold">₱{arrears}</h1>
                 </div>
                 <div className="flex w-full mt-3 justify-between items-center">
@@ -456,30 +477,37 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
               </Table.Head>
               <Table.Body className="text-sm">
                 {bills.map((bill) => (
-                <Table.Row
-                  key={bill.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <Table.Cell>{bill.month}</Table.Cell>
-                  <Table.Cell>{bill.prevReading}</Table.Cell>
-                  <Table.Cell>{bill.currentReading}</Table.Cell>
-                  <Table.Cell>{user.connection}</Table.Cell>
+                  <Table.Row
+                    key={bill.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <Table.Cell>{bill.month}</Table.Cell>
+                    <Table.Cell>{bill.prevReading}</Table.Cell>
+                    <Table.Cell>{bill.currentReading}</Table.Cell>
+                    <Table.Cell>{user.connection}</Table.Cell>
 
-                  <Table.Cell>₱{bill.amount}</Table.Cell>
-                  <Table.Cell>{bill.deadline}</Table.Cell>
-                  <Table.Cell>
-                    {bill.paidDate ? (
-                      <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs font-semibold">
-                        Paid on {bill.paidDate}
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs font-semibold">
-                        Unpaid
-                      </span>
-                    )}
-                  </Table.Cell>
+                    <Table.Cell>₱{bill.amount}</Table.Cell>
+                    <Table.Cell>{bill.deadline}</Table.Cell>
+                    <Table.Cell>
+                      {bill.paidDate ? (
+                        <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs font-semibold">
+                          Paid on {bill.paidDate}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs font-semibold">
+                          Unpaid
+                        </span>
+                      )}
+                    </Table.Cell>
                     <Table.Cell className="flex items-center justify-start">
-                      <DeleteBillModal billId={bill.id} onDelete={deleteBill} />
+                      <Button
+                        color="failure"
+                        size="xs"
+                        className="rounded px-3 py-1 text-sm font-medium"
+                        onClick={() => deleteBill(bill.id)}
+                      >
+                        Delete
+                      </Button>
                       <Button
                         color="warning"
                         size="xs"
@@ -489,8 +517,8 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                         Receipt
                       </Button>
                     </Table.Cell>
-                </Table.Row>
-              ))}
+                  </Table.Row>
+                ))}
               </Table.Body>
             </Table>
           </div>
@@ -584,7 +612,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     : bills.filter((b) => selectedBillIds.includes(b.id));
   const totalAmount = selectedBills.reduce(
     (sum, b) => sum + Number(b.amount),
-    0,
+    0
   );
   const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
@@ -704,7 +732,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               value={selectedBillIds}
               onChange={(e) =>
                 setSelectedBillIds(
-                  Array.from(e.target.selectedOptions, (opt) => opt.value),
+                  Array.from(e.target.selectedOptions, (opt) => opt.value)
                 )
               }
               disabled={payAll}
