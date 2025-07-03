@@ -18,6 +18,21 @@ import { HiHome, HiOutlineExclamationCircle } from "react-icons/hi";
 import logo from "../../../public/images/logo.png";
 import { usePDF } from "react-to-pdf";
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 interface Bill {
   id: string;
   userId: string;
@@ -103,17 +118,20 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
 
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
 
-  const getMonthWithYear = (m: string, date: string) => {
-    if (!date) return m;
-    const year = new Date(date).getFullYear();
-    return `${m} ${year}`;
-  };
-
   const getConsumptionRange = (bill: Bill) => {
-    const index = bills.findIndex((b) => b.id === bill.id);
-    const to = getMonthWithYear(bill.month, bill.deadline);
-    const fromBill = index > 0 ? bills[index - 1] : bill;
-    const from = getMonthWithYear(fromBill.month, fromBill.deadline);
+    const year = bill.deadline
+      ? new Date(bill.deadline).getFullYear()
+      : new Date().getFullYear();
+    const monthIndex = months.indexOf(bill.month);
+    if (monthIndex === -1) {
+      return { from: bill.month, to: bill.month };
+    }
+
+    const from = `${bill.month} ${year}`;
+    const nextMonthIndex = (monthIndex + 1) % 12;
+    const nextYear = nextMonthIndex === 0 ? year + 1 : year;
+    const to = `${months[nextMonthIndex]} ${nextYear}`;
+
     return { from, to };
   };
 
@@ -377,20 +395,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
               >
-                {[
-                  "January",
-                  "February",
-                  "March",
-                  "April",
-                  "May",
-                  "June",
-                  "July",
-                  "August",
-                  "September",
-                  "October",
-                  "November",
-                  "December",
-                ].map((m) => (
+                {months.map((m) => (
                   <option key={m} value={m}>
                     {m}
                   </option>
