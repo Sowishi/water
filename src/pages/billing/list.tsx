@@ -505,16 +505,29 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   const [selectedBillIds, setSelectedBillIds] = useState<string[]>([]);
   const [payAll, setPayAll] = useState(false);
   const [date, setDate] = useState("");
+  const [amountPaid, setAmountPaid] = useState("");
   const { getBillsByUser, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
 
   useEffect(() => {
     if (isOpen) {
       getBillsByUser(userId, setBills);
+      const today = new Date().toISOString().split("T")[0];
+      setDate(today);
+      setAmountPaid("");
     }
   }, [isOpen]);
 
   const unpaidBills = bills.filter((b) => !b.paidDate);
+
+  const selectedBills = payAll
+    ? unpaidBills
+    : bills.filter((b) => selectedBillIds.includes(b.id));
+  const totalAmount = selectedBills.reduce(
+    (sum, b) => sum + Number(b.amount),
+    0,
+  );
+  const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
   const printReceipt = (bill: Bill) => {
     const now = new Date();
@@ -632,7 +645,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               value={selectedBillIds}
               onChange={(e) =>
                 setSelectedBillIds(
-                  Array.from(e.target.selectedOptions, (opt) => opt.value)
+                  Array.from(e.target.selectedOptions, (opt) => opt.value),
                 )
               }
               disabled={payAll}
@@ -663,6 +676,24 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="amountPaid" value="Amount Paid" />
+            <TextInput
+              id="amountPaid"
+              type="number"
+              value={amountPaid}
+              onChange={(e) => setAmountPaid(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="change" value="Change" />
+            <TextInput
+              id="change"
+              readOnly
+              className="bg-gray-100 dark:bg-gray-700"
+              value={isNaN(change) ? "" : change.toFixed(2)}
             />
           </div>
         </Modal.Body>
