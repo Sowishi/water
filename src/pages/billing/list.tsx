@@ -351,7 +351,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
       </Modal>
 
       <Modal onClose={() => setOpen(false)} show={isOpen} size="5xl">
-        <Modal.Header>Monthly Bills</Modal.Header>
+        <Modal.Header className="sticky top-0 z-50">Monthly Bills</Modal.Header>
         <Modal.Body>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div>
@@ -776,11 +776,13 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
             </span>
           </Table.Cell>
           <Table.Cell className="p-4 flex flex-wrap gap-2">
-            <BillModal
-              userId={user.id}
-              user={user}
-              connection={user.connection}
-            />
+            {localStorage.getItem("role") === "meter" && (
+              <BillModal
+                userId={user.id}
+                user={user}
+                connection={user.connection}
+              />
+            )}
             {localStorage.getItem("role") !== "meter" && (
               <PayBillingModal user={user} userId={user.id} />
             )}
