@@ -679,6 +679,15 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
             />
           </div>
           <div className="mb-4">
+            <Label htmlFor="total" value="Total Amount" />
+            <TextInput
+              id="total"
+              readOnly
+              className="bg-gray-100 dark:bg-gray-700"
+              value={totalAmount.toFixed(2)}
+            />
+          </div>
+          <div className="mb-4">
             <Label htmlFor="amountPaid" value="Amount Paid" />
             <TextInput
               id="amountPaid"
