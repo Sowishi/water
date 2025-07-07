@@ -78,7 +78,7 @@ const BillingPage: FC = function () {
         />
       </div>
 
-      <div className="mt-4 px-4 sm:px-6 lg:px-8">
+      <div className="mt-4 px-4 sm:px-6 lg:px-8" style={{ height: 500 }}>
         <div className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800">
           <BillingUsersTable users={filteredUsers} />
         </div>
@@ -803,20 +803,20 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
 
 const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
   <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
-    <Table.Head className="bg-gray-50 dark:bg-gray-800">
-      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+    <Table.Head className="bg-blue-500 dark:bg-gray-800">
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Name
       </Table.HeadCell>
-      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Meter ID
       </Table.HeadCell>
-      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Connection Type
       </Table.HeadCell>
-      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Status
       </Table.HeadCell>
-      <Table.HeadCell className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Manage
       </Table.HeadCell>
     </Table.Head>

@@ -3,6 +3,7 @@ import {
   Breadcrumb,
   Button,
   Checkbox,
+  Dropdown,
   Label,
   Modal,
   Select,
@@ -93,7 +94,7 @@ const UserListPage: FC = function () {
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col" style={{ height: 500 }}>
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full w-full align-middle">
             <div className="overflow-hidden shadow">
@@ -332,11 +333,10 @@ const AllUsersTable: FC = function () {
 
   return (
     <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
-      <Table.Head className="bg-gray-100 dark:bg-gray-700">
+      <Table.Head className="bg-blue-500 text-white dark:bg-gray-700">
         <Table.HeadCell>Name</Table.HeadCell>
         <Table.HeadCell>Meter ID</Table.HeadCell>
         <Table.HeadCell>Address</Table.HeadCell>
-        <Table.HeadCell>Connection</Table.HeadCell>
         <Table.HeadCell>Balance</Table.HeadCell>
         <Table.HeadCell>Status</Table.HeadCell>
         <Table.HeadCell>Change status</Table.HeadCell>
@@ -364,24 +364,27 @@ const AllUsersTable: FC = function () {
                       <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
                         {user.email}
                       </div>
+                      {user.connection}
                     </div>
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
                     {user.meterID}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
-                    <div
-                      className="max-w-[200px] truncate"
-                      title={`${user.street}, ${user.barangay}`}
-                    >
-                      {user.street}, {user.barangay}
-                    </div>
+                    {user.street && user.barangay ? (
+                      <div
+                        className="max-w-[200px] truncate"
+                        title={`${user.street}, ${user.barangay}`}
+                      >
+                        {user.street}, {user.barangay}
+                      </div>
+                    ) : (
+                      "No address"
+                    )}
                   </Table.Cell>
+
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
-                    {user.connection}
-                  </Table.Cell>
-                  <Table.Cell className="whitespace-nowrap p-4 text-base font-medium text-gray-900 dark:text-white">
-                    {user.balance}
+                    ₱{user.balance}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
                     <div className="flex items-center">
@@ -417,12 +420,20 @@ const AllUsersTable: FC = function () {
                     </Button>
                   </Table.Cell>
                   <Table.Cell>
-                    <div className="flex items-center gap-x-3 whitespace-nowrap">
-                      <ViewUserModal user={user} />
-                      <HistoryModal user={user} />
-                      <EditUserModal user={user} />
-                      <DeleteUserModal user={user} />
-                    </div>
+                    <Dropdown label="Action" dismissOnClick={false} inline>
+                      <Dropdown.Item>
+                        <ViewUserModal user={user} />
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <HistoryModal user={user} />
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <EditUserModal user={user} />
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <DeleteUserModal user={user} />
+                      </Dropdown.Item>
+                    </Dropdown>
                   </Table.Cell>
                 </Table.Row>
               );
