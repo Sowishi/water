@@ -480,7 +480,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                     <Table.Cell>
                       {bill.paidDate ? (
                         <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs font-semibold">
-                          Paid on {bill.paidDate}
+                          Paid
                         </span>
                       ) : (
                         <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs font-semibold">
