@@ -390,15 +390,15 @@ const AllUsersTable: FC = function () {
                           user.status === "active"
                             ? "bg-green-400"
                             : user.status === "pending"
-                              ? "bg-yellow-400"
-                              : "bg-red-400"
+                            ? "bg-yellow-400"
+                            : "bg-red-400"
                         }`}
                       ></div>
                       {user.status === "active"
                         ? "Active"
                         : user.status === "pending"
-                          ? "Pending"
-                          : "Disconnected"}
+                        ? "Pending"
+                        : "Disconnected"}
                     </div>
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white">
@@ -552,11 +552,11 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      phone: user.phone,
+      phone: user.phone ?? "",
       meterID: user.meterID,
       connection: user.connection,
-      street: user.street,
-      barangay: user.barangay,
+      street: user.street ?? "",
+      barangay: user.barangay ?? "",
       status: user.status,
       updatedAt: new Date().toISOString(),
     };
