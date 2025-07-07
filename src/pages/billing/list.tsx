@@ -54,19 +54,8 @@ const BillingPage: FC = function () {
 
   return (
     <NavbarSidebarLayout isFooter={false}>
-      <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="mb-4">
-          <Breadcrumb className="mb-2">
-            <Breadcrumb.Item href="#">
-              <HiHome className="text-xl mr-2" />
-              <span className="dark:text-white">Home</span>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>Billing</Breadcrumb.Item>
-          </Breadcrumb>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Billing Management
-          </h1>
-        </div>
+      <div className="flex w-full justify-start items-center py-5 ml-10">
+        <h1 className="text-3xl font-bold">Billing Management</h1>
       </div>
 
       <div className="mb-4 px-4 sm:px-6 lg:px-8">
@@ -74,7 +63,7 @@ const BillingPage: FC = function () {
           placeholder="Search by name or meter ID"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
+          className="max-w-md "
         />
       </div>
 
