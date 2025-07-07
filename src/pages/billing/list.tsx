@@ -871,7 +871,14 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
               />
             )}
             {localStorage.getItem("role") !== "meter" && (
-              <PayBillingModal user={user} userId={user.id} />
+              <>
+                <BillModal
+                  userId={user.id}
+                  user={user}
+                  connection={user.connection}
+                />
+                <PayBillingModal user={user} userId={user.id} />
+              </>
             )}
           </Table.Cell>
         </Table.Row>
