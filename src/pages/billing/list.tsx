@@ -575,6 +575,109 @@ interface PayBillingModalProps {
   user: Object;
 }
 
+function TellerReceipt() {
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString(); // e.g. 7/9/2025
+  const formattedTime = now.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }); // e.g. 03:45 PM
+  return (
+    <div className="w-[300px] border  border-black p-2 font-sans text-xs space-y-2">
+      {/* Header */}
+      <div className="border border-black h-10 flex flex-col items-center justify-center text-center py-10">
+        <h1>Villanueva, Misasmi Oriental</h1>
+        <h1
+          className="w-[130px]"
+          style={{ marginTop: 5, borderTop: "2px solid black" }}
+        >
+          Municipality
+        </h1>
+      </div>
+
+      <div className="flex border flex-col border-black ">
+        {/* Date Section */}
+        <div className="border border-black">
+          <div className="flex-1 p-2 flex flex-col justify-center">
+            <span className="font-semibold">DATE</span>
+            <span className="text-[10px]">
+              {formattedDate} – {formattedTime}
+            </span>
+          </div>
+        </div>
+
+        {/* Payor Section */}
+        <div className="flex-1 p-2 flex flex-col justify-center">
+          <span className="font-semibold">PAYOR</span>
+          <span className="text-[10px]">Juan Dela Cruz</span>{" "}
+          {/* Replace with real name or keep static */}
+        </div>
+      </div>
+
+      {/* Nature of Collection Table */}
+      <div className="border border-black">
+        <div className="flex text-center border-b border-black font-semibold">
+          <div className="flex-1 border-r border-black p-1">
+            NATURE OF COLLECTION
+          </div>
+          <div className="w-[70px] border-r border-black p-1">ACCOUNT CODE</div>
+          <div className="w-[70px] p-1">AMOUNT</div>
+        </div>
+
+        {/* 7 Rows */}
+        {[...Array(7)].map((_, i) => (
+          <div key={i} className="flex border-b border-black h-6">
+            <div className="flex-1 border-r border-black"></div>
+            <div className="w-[70px] border-r border-black"></div>
+            <div className="w-[70px]"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Total */}
+      <div className="border border-black flex h-6 font-semibold">
+        <div className="flex-1 border-r border-black flex items-center justify-center">
+          TOTAL
+        </div>
+        <div className="w-[70px] border-r border-black"></div>
+        <div className="w-[70px]"></div>
+      </div>
+
+      {/* Amount in Words */}
+      <div className="border border-black p-1 h-6 flex items-center font-semibold">
+        AMOUNT IN WORDS
+      </div>
+
+      {/* Payment Mode */}
+      <div className="border border-black p-1">
+        <div className="space-y-1">
+          <div>
+            <input type="checkbox" className="mr-1" disabled /> Cash
+          </div>
+          <div>
+            <input type="checkbox" className="mr-1" disabled /> Check
+          </div>
+          <div>
+            <input type="checkbox" className="mr-1" disabled /> Money Order
+          </div>
+        </div>
+      </div>
+
+      {/* Signature Section */}
+      <div className="border border-black p-1 text-xs">
+        <p className="mb-2">Received the amount stated above</p>
+        <div className="flex justify-between items-end">
+          <span>By:</span>
+          <div className="text-right">
+            <div className="border-b border-black w-24 h-4 mb-1" />
+            <span>COLLECTING OFFICER</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   const [isOpen, setOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
@@ -584,6 +687,8 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   const [amountPaid, setAmountPaid] = useState("");
   const { getBillsByUser, updateBill } = useCrudBill();
   const { updateUser } = useCrudUser();
+
+  const [receiptModal, setReceiptModal] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -605,78 +710,8 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   );
   const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
-  const printReceipt = (bill: Bill) => {
-    const now = new Date();
-    const formattedDateTime = now.toLocaleString("en-PH", {
-      dateStyle: "long",
-      timeStyle: "short",
-    });
-
-    const receiptWindow = window.open("", "_blank");
-    if (receiptWindow) {
-      receiptWindow.document.write(`
-        <html>
-          <head>
-            <title>Billing Receipt</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 20px; }
-              .center { text-align: center; }
-              .bold { font-weight: bold; }
-              .section { margin-top: 20px; }
-              .row { display: flex; justify-content: space-between; margin-top: 10px; }
-              .divider { margin: 20px 0; border-top: 1px dashed #000; }
-            </style>
-          </head>
-          <body>
-            <div class="center">
-              <img src="${logo}" width="130" />
-              <h2>VILLANUEVA WATER SYSTEM</h2>
-              <p>LGU Villanueva<br>Misamin, Oriental</p>
-            </div>
-            <div class="section">${formattedDateTime}</div>
-            <div class="divider"></div>
-            <div class="section">
-              <div class="row"><span>Account Number:</span><span class="bold">${
-                user?.meterID || "-"
-              }</span></div>
-              <div class="row"><span>Account Name:</span><span class="bold">${
-                user?.firstName || ""
-              } ${user?.lastName || ""}</span></div>
-              <div class="row"><span>Connection Type:</span><span class="bold">${
-                user?.connection || "-"
-              }</span></div>
-              <div class="row"><span>Address:</span><span class="bold">${
-                user.address || "-"
-              }</span></div>
-              <div class="row"><span>Month:</span><span class="bold">${
-                bill.month
-              }</span></div>
-              <div class="row"><span>Reading:</span><span class="bold">${
-                bill.currentReading
-              }</span></div>
-              <div class="row"><span>Paid Date:</span><span class="bold">${date}</span></div>
-              <div class="row"><span>Amount Paid:</span><span class="bold">₱${
-                bill.amount
-              }</span></div>
-            </div>
-            <div class="divider"></div>
-            <div class="section center">
-              <p class="bold">Contact Us</p>
-              <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
-              <div class="row"><span>Globe:</span><span class="bold">0917-1629-094</span></div>
-              <div class="row"><span>Website:</span><span class="bold">villanuevamisor.gov.ph</span></div>
-              <div class="row"><span>Facebook:</span><span class="bold">facebook.com/LGUVillanueva</span></div>
-            </div>
-            <script>
-              window.onload = function () {
-                window.print();
-              };
-            </script>
-          </body>
-        </html>
-      `);
-      receiptWindow.document.close();
-    }
+  const handleReceiptModal = () => {
+    setReceiptModal(true);
   };
 
   const handlePay = () => {
@@ -687,7 +722,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     if (billsToPay.length > 0 && date) {
       billsToPay.forEach((b) => {
         updateBill(b.id, { paidDate: date });
-        printReceipt(b);
+        handleReceiptModal();
       });
 
       const total = billsToPay.reduce((sum, b) => sum + Number(b.amount), 0);
@@ -709,6 +744,17 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
       <Button size="xs" color="success" onClick={() => setOpen(true)}>
         Pay Billing
       </Button>
+
+      <Modal show={receiptModal} onClose={() => setReceiptModal(false)}>
+        <Modal.Header>Receipt Modal</Modal.Header>
+
+        <Modal.Body className="flex justify-center items-center h-[500px] pt-44 overflow-y-scroll">
+          <TellerReceipt />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handlePay}>Confirm</Button>
+        </Modal.Footer>
+      </Modal>
       <Modal show={isOpen} onClose={() => setOpen(false)}>
         <Modal.Header>Pay Billing</Modal.Header>
         <Modal.Body>

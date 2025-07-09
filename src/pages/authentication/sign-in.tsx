@@ -31,14 +31,17 @@ const SignInPage: FC = function () {
     <div
       className="flex min-h-screen items-center justify-center bg-cover bg-center px-4"
       style={{
-        backgroundImage:
-          "linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80')",
+        backgroundImage: `
+          linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)),
+          url(${logo})
+        `,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <div className="w-full max-w-md">
-        <div className="mb-6 flex justify-center">
-          <img alt="Flowbite logo" src={logo} className="h-28 drop-shadow-lg" />
-        </div>
+        <div className="mb-6 flex justify-center"></div>
         <Card className="w-full p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/70 shadow-2xl rounded-2xl">
           <h1 className="mb-3 text-2xl font-bold text-center text-gray-800 dark:text-white md:text-3xl">
             Sign in to WaterWorks
