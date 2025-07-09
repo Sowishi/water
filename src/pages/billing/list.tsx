@@ -140,7 +140,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
     const arrearsDetails = arrearsBills
       .map(
         (b) =>
-          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`
+          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`,
       )
       .join("");
 
@@ -572,16 +572,85 @@ interface BillingUsersTableProps {
 
 interface PayBillingModalProps {
   userId: string;
-  user: Object;
+  user: any;
 }
 
-function TellerReceipt() {
+interface TellerReceiptProps {
+  payor: string;
+  bills: Bill[];
+  totalAmount: number;
+}
+
+function numberToWords(num: number): string {
+  const a = [
+    "",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+  ];
+  const b = [
+    "",
+    "",
+    "twenty",
+    "thirty",
+    "forty",
+    "fifty",
+    "sixty",
+    "seventy",
+    "eighty",
+    "ninety",
+  ];
+
+  const toWords = (n: number): string => {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
+    if (n < 1000)
+      return (
+        a[Math.floor(n / 100)] +
+        " hundred" +
+        (n % 100 ? " " + toWords(n % 100) : "")
+      );
+    if (n < 1000000)
+      return (
+        toWords(Math.floor(n / 1000)) +
+        " thousand" +
+        (n % 1000 ? " " + toWords(n % 1000) : "")
+      );
+    return "";
+  };
+
+  if (num === 0) return "zero";
+  return toWords(num);
+}
+
+function TellerReceipt({ payor, bills, totalAmount }: TellerReceiptProps) {
   const now = new Date();
   const formattedDate = now.toLocaleDateString(); // e.g. 7/9/2025
   const formattedTime = now.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   }); // e.g. 03:45 PM
+  const amountWords = `${numberToWords(Math.floor(totalAmount)).toUpperCase()} PESOS ${Math.round(
+    (totalAmount % 1) * 100,
+  )
+    .toString()
+    .padStart(2, "0")}/100`;
   return (
     <div className="w-[300px] border  border-black p-2 font-sans text-xs space-y-2">
       {/* Header */}
@@ -609,8 +678,7 @@ function TellerReceipt() {
         {/* Payor Section */}
         <div className="flex-1 p-2 flex flex-col justify-center">
           <span className="font-semibold">PAYOR</span>
-          <span className="text-[10px]">Juan Dela Cruz</span>{" "}
-          {/* Replace with real name or keep static */}
+          <span className="text-[10px]">{payor}</span>
         </div>
       </div>
 
@@ -624,14 +692,19 @@ function TellerReceipt() {
           <div className="w-[70px] p-1">AMOUNT</div>
         </div>
 
-        {/* 7 Rows */}
-        {[...Array(7)].map((_, i) => (
-          <div key={i} className="flex border-b border-black h-6">
-            <div className="flex-1 border-r border-black"></div>
-            <div className="w-[70px] border-r border-black"></div>
-            <div className="w-[70px]"></div>
-          </div>
-        ))}
+        {[...bills, ...Array(Math.max(0, 7 - bills.length)).fill(null)]
+          .slice(0, 7)
+          .map((b, i) => (
+            <div key={i} className="flex border-b border-black h-6">
+              <div className="flex-1 border-r border-black flex items-center px-1">
+                {b ? `Water Bill - ${b.month}` : ""}
+              </div>
+              <div className="w-[70px] border-r border-black" />
+              <div className="w-[70px] flex items-center justify-end px-1">
+                {b ? Number(b.amount).toFixed(2) : ""}
+              </div>
+            </div>
+          ))}
       </div>
 
       {/* Total */}
@@ -639,20 +712,21 @@ function TellerReceipt() {
         <div className="flex-1 border-r border-black flex items-center justify-center">
           TOTAL
         </div>
-        <div className="w-[70px] border-r border-black"></div>
-        <div className="w-[70px]"></div>
+        <div className="w-[70px] border-r border-black" />
+        <div className="w-[70px] flex items-center justify-end px-1">
+          {totalAmount.toFixed(2)}
+        </div>
       </div>
-
       {/* Amount in Words */}
       <div className="border border-black p-1 h-6 flex items-center font-semibold">
-        AMOUNT IN WORDS
+        AMOUNT IN WORDS: {amountWords}
       </div>
 
       {/* Payment Mode */}
       <div className="border border-black p-1">
         <div className="space-y-1">
           <div>
-            <input type="checkbox" className="mr-1" disabled /> Cash
+            <input type="checkbox" className="mr-1" checked disabled /> Cash
           </div>
           <div>
             <input type="checkbox" className="mr-1" disabled /> Check
@@ -706,7 +780,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     : bills.filter((b) => selectedBillIds.includes(b.id));
   const totalAmount = selectedBills.reduce(
     (sum, b) => sum + Number(b.amount),
-    0
+    0,
   );
   const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
@@ -722,7 +796,6 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     if (billsToPay.length > 0 && date) {
       billsToPay.forEach((b) => {
         updateBill(b.id, { paidDate: date });
-        handleReceiptModal();
       });
 
       const total = billsToPay.reduce((sum, b) => sum + Number(b.amount), 0);
@@ -731,6 +804,8 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
         status: "active",
         balance: increment(-total),
       });
+
+      handleReceiptModal();
 
       setOpen(false);
       setDate("");
@@ -749,7 +824,11 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
         <Modal.Header>Receipt Modal</Modal.Header>
 
         <Modal.Body className="flex justify-center items-center h-[500px] pt-44 overflow-y-scroll">
-          <TellerReceipt />
+          <TellerReceipt
+            payor={`${user.firstName} ${user.lastName}`}
+            bills={selectedBills}
+            totalAmount={totalAmount}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handlePay}>Confirm</Button>
@@ -767,7 +846,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               value={selectedBillIds}
               onChange={(e) =>
                 setSelectedBillIds(
-                  Array.from(e.target.selectedOptions, (opt) => opt.value)
+                  Array.from(e.target.selectedOptions, (opt) => opt.value),
                 )
               }
               disabled={payAll}
