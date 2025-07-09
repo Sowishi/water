@@ -18,6 +18,62 @@ import { HiHome, HiOutlineExclamationCircle } from "react-icons/hi";
 import logo from "../../../public/images/logo.png";
 import { usePDF } from "react-to-pdf";
 
+const numberToWords = (num: number): string => {
+  const a = [
+    "Zero",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  const inWords = (n: number): string => {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
+    if (n < 1000)
+      return (
+        a[Math.floor(n / 100)] +
+        " Hundred" +
+        (n % 100 ? " " + inWords(n % 100) : "")
+      );
+    if (n < 1000000)
+      return (
+        inWords(Math.floor(n / 1000)) +
+        " Thousand" +
+        (n % 1000 ? " " + inWords(n % 1000) : "")
+      );
+    if (n < 1000000000)
+      return (
+        inWords(Math.floor(n / 1000000)) +
+        " Million" +
+        (n % 1000000 ? " " + inWords(n % 1000000) : "")
+      );
+    return String(n);
+  };
+
+  const pesos = Math.floor(num);
+  const centavos = Math.round((num - pesos) * 100);
+  let words = inWords(pesos) + " Pesos";
+  if (centavos > 0) words += " and " + centavos + "/100";
+  return words.toUpperCase();
+};
+
 interface Bill {
   id: string;
   userId: string;
@@ -137,6 +193,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
     const arrearsBills = bills.filter((b) => !b.paidDate && b.id !== bill.id);
     const arrears = arrearsBills.reduce((sum, b) => sum + Number(b.amount), 0);
     const totalDue = amountDue + arrears;
+    const amountWords = numberToWords(totalDue);
     const arrearsDetails = arrearsBills
       .map(
         (b) =>
@@ -174,9 +231,8 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             <p class="center">${formattedDateTime}</p>
             <div class="divider"></div>
             <div class="row"><span>Account Number:</span><span class="bold">${user?.meterID}</span></div>
-            <div class="row"><span>Account Name:</span><span class="bold">${user?.firstName} ${user?.lastName}</span></div>
-            <div class="row"><span>Connection Type:</span><span class="bold">${user?.connection}</span></div>
-            <div class="row"><span>Address:</span><span class="bold">${user?.address}</span></div>
+            <div class="row"><span>Payor:</span><span class="bold">${user?.firstName} ${user?.lastName}</span></div>
+            <div class="row"><span>Nature of Collection:</span><span class="bold">Water Bill Payment</span></div>
             <div class="row"><span>Consumption From:</span><span class="bold">${from}</span></div>
             <div class="row"><span>Consumption To:</span><span class="bold">${to}</span></div>
             <div class="row"><span>Reading:</span><span class="bold">${bill.currentReading}</span></div>
@@ -186,6 +242,10 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
             ${arrearsDetails}
             <div class="row"><span>Total Arrears:</span><span class="bold">₱${arrears}</span></div>
             <div class="row"><span>Total Due:</span><span class="bold">₱${totalDue}</span></div>
+            <div class="row"><span>Amount in Words:</span><span class="bold">${amountWords}</span></div>
+            <div class="row"><span>Payment Method:</span><span class="bold">Cash</span></div>
+            <div class="row"><span>Account Code:</span><span class="bold"></span></div>
+            <div class="row"><span>Office Name:</span><span class="bold"></span></div>
             <div class="divider"></div>
             <div class="center bold">Contact Us</div>
             <div class="row"><span>PhilCom:</span><span class="bold">088-5650-278</span></div>
@@ -342,6 +402,22 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
                 <div className="flex w-full mt-3 justify-between items-center">
                   <h1>Total Due</h1>
                   <h1 className="text-2xl font-bold">₱{totalDue}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Amount in Words</h1>
+                  <h1 className="text-xs font-bold">{numberToWords(totalDue)}</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Payment Method</h1>
+                  <h1 className="text-lg font-bold">Cash</h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Account Code</h1>
+                  <h1 className="text-lg font-bold"></h1>
+                </div>
+                <div className="flex w-full mt-3 justify-between items-center">
+                  <h1>Office Name</h1>
+                  <h1 className="text-lg font-bold"></h1>
                 </div>
               </div>
               <h1>=============================</h1>
@@ -605,12 +681,21 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   );
   const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
-  const printReceipt = (bill: Bill) => {
+  const printReceipt = (billsData: Bill[], total: number) => {
     const now = new Date();
     const formattedDateTime = now.toLocaleString("en-PH", {
       dateStyle: "long",
       timeStyle: "short",
     });
+
+    const billsDetails = billsData
+      .map(
+        (b) =>
+          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`
+      )
+      .join("");
+
+    const amountWords = numberToWords(total);
 
     const receiptWindow = window.open("", "_blank");
     if (receiptWindow) {
@@ -639,26 +724,17 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               <div class="row"><span>Account Number:</span><span class="bold">${
                 user?.meterID || "-"
               }</span></div>
-              <div class="row"><span>Account Name:</span><span class="bold">${
+              <div class="row"><span>Payor:</span><span class="bold">${
                 user?.firstName || ""
               } ${user?.lastName || ""}</span></div>
-              <div class="row"><span>Connection Type:</span><span class="bold">${
-                user?.connection || "-"
-              }</span></div>
-              <div class="row"><span>Address:</span><span class="bold">${
-                user.address || "-"
-              }</span></div>
-              <div class="row"><span>Month:</span><span class="bold">${
-                bill.month
-              }</span></div>
-              <div class="row"><span>Reading:</span><span class="bold">${
-                bill.currentReading
-              }</span></div>
-              <div class="row"><span>Paid Date:</span><span class="bold">${date}</span></div>
-              <div class="row"><span>Amount Paid:</span><span class="bold">₱${
-                bill.amount
-              }</span></div>
-            </div>
+              <div class="row"><span>Nature of Collection:</span><span class="bold">Water Bill Payment</span></div>
+              ${billsDetails}
+              <div class="row"><span>Total Amount:</span><span class="bold">₱${total.toFixed(2)}</span></div>
+              <div class="row"><span>Amount in Words:</span><span class="bold">${amountWords}</span></div>
+              <div class="row"><span>Payment Method:</span><span class="bold">Cash</span></div>
+              <div class="row"><span>Account Code:</span><span class="bold"></span></div>
+              <div class="row"><span>Office Name:</span><span class="bold"></span></div>
+              </div>
             <div class="divider"></div>
             <div class="section center">
               <p class="bold">Contact Us</p>
@@ -687,10 +763,10 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     if (billsToPay.length > 0 && date) {
       billsToPay.forEach((b) => {
         updateBill(b.id, { paidDate: date });
-        printReceipt(b);
       });
 
       const total = billsToPay.reduce((sum, b) => sum + Number(b.amount), 0);
+      printReceipt(billsToPay, total);
 
       updateUser(userId, {
         status: "active",
