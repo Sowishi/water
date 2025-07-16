@@ -579,6 +579,7 @@ interface TellerReceiptProps {
   payor: string;
   bills: Bill[];
   totalAmount: number;
+  receiptRef: any;
 }
 
 function numberToWords(num: number): string {
@@ -639,7 +640,12 @@ function numberToWords(num: number): string {
   return toWords(num);
 }
 
-function TellerReceipt({ payor, bills, totalAmount }: TellerReceiptProps) {
+function TellerReceipt({
+  payor,
+  bills,
+  totalAmount,
+  receiptRef,
+}: TellerReceiptProps) {
   const now = new Date();
   const formattedDate = now.toLocaleDateString(); // e.g. 7/9/2025
   const formattedTime = now.toLocaleTimeString([], {
@@ -652,9 +658,11 @@ function TellerReceipt({ payor, bills, totalAmount }: TellerReceiptProps) {
     .toString()
     .padStart(2, "0")}/100`;
 
-  console.log(bills);
   return (
-    <div className="w-[300px] border  border-black p-2 font-sans text-xs space-y-2">
+    <div
+      ref={receiptRef}
+      className="w-[300px] border  border-black p-2 font-sans text-xs space-y-2"
+    >
       {/* Header */}
       <div className="border border-black h-10 flex flex-col items-center justify-center text-center py-10">
         <h1>Villanueva, Misasmi Oriental</h1>
@@ -815,6 +823,12 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     }
   };
 
+  const handlePrintModal = () => {
+    toPDF();
+  };
+
+  const { toPDF, targetRef } = usePDF({ filename: "billing-reports.pdf" });
+
   return (
     <>
       <Button size="xs" color="success" onClick={() => setOpen(true)}>
@@ -833,10 +847,11 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
             payor={`${user.firstName} ${user.lastName}`}
             bills={selectedBills}
             totalAmount={totalAmount}
+            receiptRef={targetRef}
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handlePay}>Confirm</Button>
+          <Button onClick={handlePrintModal}>Confirm</Button>
         </Modal.Footer>
       </Modal>
       <Modal show={isOpen} onClose={() => setOpen(false)}>

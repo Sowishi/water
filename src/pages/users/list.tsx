@@ -408,7 +408,12 @@ const AllUsersTable: FC = function () {
                     </Button>
                   </Table.Cell>
                   <Table.Cell>
-                    <Dropdown label="Action" dismissOnClick={false} inline>
+                    <Dropdown
+                      placement="left"
+                      label="Action"
+                      dismissOnClick={false}
+                      inline
+                    >
                       <Dropdown.Item>
                         <ViewUserModal user={user} />
                       </Dropdown.Item>
