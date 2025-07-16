@@ -140,7 +140,7 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
     const arrearsDetails = arrearsBills
       .map(
         (b) =>
-          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`,
+          `<div class="row"><span>${b.month}</span><span class="bold">₱${b.amount}</span></div>`
       )
       .join("");
 
@@ -646,11 +646,13 @@ function TellerReceipt({ payor, bills, totalAmount }: TellerReceiptProps) {
     hour: "2-digit",
     minute: "2-digit",
   }); // e.g. 03:45 PM
-  const amountWords = `${numberToWords(Math.floor(totalAmount)).toUpperCase()} PESOS ${Math.round(
-    (totalAmount % 1) * 100,
-  )
+  const amountWords = `${numberToWords(
+    Math.floor(totalAmount)
+  ).toUpperCase()} PESOS ${Math.round((totalAmount % 1) * 100)
     .toString()
     .padStart(2, "0")}/100`;
+
+  console.log(bills);
   return (
     <div className="w-[300px] border  border-black p-2 font-sans text-xs space-y-2">
       {/* Header */}
@@ -718,7 +720,7 @@ function TellerReceipt({ payor, bills, totalAmount }: TellerReceiptProps) {
         </div>
       </div>
       {/* Amount in Words */}
-      <div className="border border-black p-1 h-6 flex items-center font-semibold">
+      <div className="border border-black p-1 py-5 h-6 flex items-center font-semibold">
         AMOUNT IN WORDS: {amountWords}
       </div>
 
@@ -780,7 +782,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
     : bills.filter((b) => selectedBillIds.includes(b.id));
   const totalAmount = selectedBills.reduce(
     (sum, b) => sum + Number(b.amount),
-    0,
+    0
   );
   const change = amountPaid ? Number(amountPaid) - totalAmount : 0;
 
@@ -809,7 +811,6 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
 
       setOpen(false);
       setDate("");
-      setSelectedBillIds([]);
       setPayAll(false);
     }
   };
@@ -820,7 +821,11 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
         Pay Billing
       </Button>
 
-      <Modal show={receiptModal} onClose={() => setReceiptModal(false)}>
+      <Modal
+        className="h-[400px] overflow-scroll bg-red"
+        show={receiptModal}
+        onClose={() => setReceiptModal(false)}
+      >
         <Modal.Header>Receipt Modal</Modal.Header>
 
         <Modal.Body className="flex justify-center items-center h-[500px] pt-44 overflow-y-scroll">
@@ -836,7 +841,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
       </Modal>
       <Modal show={isOpen} onClose={() => setOpen(false)}>
         <Modal.Header>Pay Billing</Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="h-[400px] overflow-scroll">
           <div className="mb-4">
             <Label htmlFor="bill" value="Bills" />
             <select
@@ -846,7 +851,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
               value={selectedBillIds}
               onChange={(e) =>
                 setSelectedBillIds(
-                  Array.from(e.target.selectedOptions, (opt) => opt.value),
+                  Array.from(e.target.selectedOptions, (opt) => opt.value)
                 )
               }
               disabled={payAll}
