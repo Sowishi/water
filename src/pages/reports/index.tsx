@@ -24,8 +24,10 @@ interface User {
   lastName: string;
   meterID: string;
   barangay: string;
+  address: string;
   connection: string;
   status: string;
+  balance?: string;
 }
 
 const ReportsPage: FC = () => {
@@ -188,11 +190,10 @@ const ReportsPage: FC = () => {
         <Table hoverable striped>
           <Table.Head className="text-sm uppercase tracking-wide bg-gray-100 dark:bg-gray-700">
             <Table.HeadCell>Name</Table.HeadCell>
+            <Table.HeadCell>Address</Table.HeadCell>
             <Table.HeadCell>Meter ID</Table.HeadCell>
+            <Table.HeadCell>Balance</Table.HeadCell>
             <Table.HeadCell>Month</Table.HeadCell>
-            <Table.HeadCell>Previous</Table.HeadCell>
-            <Table.HeadCell>Current</Table.HeadCell>
-            <Table.HeadCell>Amount</Table.HeadCell>
             <Table.HeadCell>Deadline</Table.HeadCell>
             <Table.HeadCell>Status</Table.HeadCell>
           </Table.Head>
@@ -204,24 +205,29 @@ const ReportsPage: FC = () => {
                   <Table.Cell>
                     {user ? `${user.firstName} ${user.lastName}` : "-"}
                   </Table.Cell>
+                  <Table.Cell>{user?.address || "-"}</Table.Cell>
                   <Table.Cell>{user?.meterID || "-"}</Table.Cell>
-                  <Table.Cell>{bill.month}</Table.Cell>
-                  <Table.Cell>{bill.prevReading}</Table.Cell>
-                  <Table.Cell>{bill.currentReading}</Table.Cell>
-                  <Table.Cell className="text-green-600 dark:text-green-400">
-                    ₱{bill.amount}
+                  <Table.Cell className="text-red-600 dark:text-red-400 font-semibold">
+                    ₱{user?.balance || "0"}
                   </Table.Cell>
-                  <Table.Cell>{bill.deadline}</Table.Cell>
+                  <Table.Cell>{bill.month}</Table.Cell>
+                  <Table.Cell>{bill.deadline || "-"}</Table.Cell>
                   <Table.Cell>
-                    {bill.paidDate ? (
-                      <span className="text-green-600 dark:text-green-400">
-                        Paid on {bill.paidDate}
-                      </span>
-                    ) : (
-                      <span className="text-red-600 dark:text-red-400">
-                        Unpaid
-                      </span>
-                    )}
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        user?.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : user?.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {user?.status === "active"
+                        ? "Active"
+                        : user?.status === "pending"
+                        ? "Pending"
+                        : "Disconnected"}
+                    </span>
                   </Table.Cell>
                 </Table.Row>
               );
