@@ -32,8 +32,42 @@ interface Bill {
 interface BillModalProps {
   userId: string;
   connection: string;
-  user: Object;
+  user: any;
 }
+
+// Disconnection schedule based on barangay
+const getDisconnectionDay = (barangay: string): number => {
+  const schedule: Record<string, number> = {
+    "Balacanas": 19,
+    "Tambobong": 19,
+    "Imelda": 19,
+    "Looc": 19,
+    "Poblacion 1": 20,
+    "Poblacion 2": 20,
+    "Poblacion 3": 20,
+    "Dayawan": 20,
+    "San Martin": 21,
+    "Katipunan": 21,
+    "Kimaya": 22,
+  };
+  return schedule[barangay] || 0;
+};
+
+const shouldDisconnect = (barangay: string, deadlineDate: string): boolean => {
+  if (!deadlineDate || !barangay) return false;
+  
+  const deadline = new Date(deadlineDate);
+  const today = new Date();
+  const disconnectionDay = getDisconnectionDay(barangay);
+  
+  if (disconnectionDay === 0) return false;
+  
+  // Check if deadline has passed and today is on or after the disconnection day
+  const isPastDeadline = today > deadline;
+  const currentDay = today.getDate();
+  
+  return isPastDeadline && currentDay >= disconnectionDay;
+};
 
 const BillingPage: FC = function () {
   const [users, setUsers] = useState<any[]>([]);
@@ -232,9 +266,14 @@ const BillModal: FC<BillModalProps> = ({ userId, connection, user }) => {
       deadline,
       paidDate: "",
     });
+    
+    // Check if user should be disconnected based on barangay schedule
+    const userBarangay = user?.barangay || "";
+    const shouldDisconnectUser = shouldDisconnect(userBarangay, deadline);
+    
     updateUser(userId, {
-      status: "disconnected",
       balance: increment(Number(amount)),
+      ...(shouldDisconnectUser && { status: "disconnected" }),
     });
 
     setAmount("");

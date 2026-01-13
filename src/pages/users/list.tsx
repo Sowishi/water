@@ -254,9 +254,17 @@ const AddUserModal: FC = function () {
                   onChange={(e) => handleChange(e.target.value, e.target.name)}
                 >
                   <option value="">Select Barangay</option>
-                  <option value="Barangay 1">Barangay 1</option>
-                  <option value="Barangay 2">Barangay 2</option>
-                  <option value="Barangay 3">Barangay 3</option>
+                  <option value="Balacanas">Balacanas</option>
+                  <option value="Dayawan">Dayawan</option>
+                  <option value="Katipunan">Katipunan</option>
+                  <option value="Kimaya">Kimaya</option>
+                  <option value="Poblacion 1">Poblacion 1</option>
+                  <option value="San Martin">San Martin</option>
+                  <option value="Tambobong">Tambobong</option>
+                  <option value="Imelda">Imelda</option>
+                  <option value="Looc">Looc</option>
+                  <option value="Poblacion 2">Poblacion 2</option>
+                  <option value="Poblacion 3">Poblacion 3</option>
                 </Select>
               </div>
             </div>
@@ -679,9 +687,17 @@ const EditUserModal: FC<EditUserModalProps> = function ({ user }) {
                   onChange={(e) => handleChange(e.target.value, e.target.name)}
                 >
                   <option value="">Select Barangay</option>
-                  <option value="Barangay 1">Barangay 1</option>
-                  <option value="Barangay 2">Barangay 2</option>
-                  <option value="Barangay 3">Barangay 3</option>
+                  <option value="Balacanas">Balacanas</option>
+                  <option value="Dayawan">Dayawan</option>
+                  <option value="Katipunan">Katipunan</option>
+                  <option value="Kimaya">Kimaya</option>
+                  <option value="Poblacion 1">Poblacion 1</option>
+                  <option value="San Martin">San Martin</option>
+                  <option value="Tambobong">Tambobong</option>
+                  <option value="Imelda">Imelda</option>
+                  <option value="Looc">Looc</option>
+                  <option value="Poblacion 2">Poblacion 2</option>
+                  <option value="Poblacion 3">Poblacion 3</option>
                 </Select>
               </div>
             </div>
