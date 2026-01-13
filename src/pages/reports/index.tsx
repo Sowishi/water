@@ -88,8 +88,8 @@ const ReportsPage: FC = () => {
         </div>
       </section>
 
-      <div className="p-6 overflow-x-auto" ref={targetRef}>
-        <div className="mb-4 flex flex-wrap gap-4">
+      <div className="p-6">
+        <div className="mb-4 flex flex-wrap gap-4 print:hidden">
           <div>
             <Label htmlFor="barangay" value="Barangay" />
             <Select
@@ -187,6 +187,7 @@ const ReportsPage: FC = () => {
             </Button>
           </div>
         </div>
+        <div className="overflow-x-auto" ref={targetRef}>
         <Table hoverable striped>
           <Table.Head className="text-sm uppercase tracking-wide bg-gray-100 dark:bg-gray-700">
             <Table.HeadCell>Name</Table.HeadCell>
@@ -234,6 +235,7 @@ const ReportsPage: FC = () => {
             })}
           </Table.Body>
         </Table>
+        </div>
       </div>
     </NavbarSidebarLayout>
   );

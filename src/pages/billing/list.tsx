@@ -72,11 +72,19 @@ const shouldDisconnect = (barangay: string, deadlineDate: string): boolean => {
 const BillingPage: FC = function () {
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [bills, setBills] = useState<Bill[]>([]);
   const { getUsers } = useCrudUser();
+  const { getBills } = useCrudBill();
 
   useEffect(() => {
     getUsers(setUsers);
+    getBills(setBills);
   }, []);
+
+  const getUnpaidMonthsCount = (userId: string): number => {
+    const userBills = bills.filter((bill) => bill.userId === userId && !bill.paidDate);
+    return userBills.length;
+  };
 
   const filteredUsers = users.filter((user) => {
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
@@ -103,7 +111,7 @@ const BillingPage: FC = function () {
 
       <div className="mt-4 px-4 sm:px-6 lg:px-8" style={{ height: 500 }}>
         <div className="overflow-hidden rounded-lg shadow-md bg-white dark:bg-gray-800">
-          <BillingUsersTable users={filteredUsers} />
+          <BillingUsersTable users={filteredUsers} getUnpaidMonthsCount={getUnpaidMonthsCount} />
         </div>
       </div>
     </NavbarSidebarLayout>
@@ -607,6 +615,7 @@ const DeleteBillModal: FC<DeleteBillModalProps> = ({ billId, onDelete }) => {
 
 interface BillingUsersTableProps {
   users: any[];
+  getUnpaidMonthsCount: (userId: string) => number;
 }
 
 interface PayBillingModalProps {
@@ -974,7 +983,7 @@ const PayBillingModal: FC<PayBillingModalProps> = ({ userId, user }) => {
   );
 };
 
-const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
+const BillingUsersTable: FC<BillingUsersTableProps> = ({ users, getUnpaidMonthsCount }) => (
   <Table className="min-w-full w-full divide-y divide-gray-200 dark:divide-gray-600">
     <Table.Head className="bg-blue-500 dark:bg-gray-800">
       <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
@@ -990,72 +999,94 @@ const BillingUsersTable: FC<BillingUsersTableProps> = ({ users }) => (
         Status
       </Table.HeadCell>
       <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
+        Unpaid Months
+      </Table.HeadCell>
+      <Table.HeadCell className="text-sm font-semibold text-white dark:text-gray-300">
         Manage
       </Table.HeadCell>
     </Table.Head>
     <Table.Body className="divide-y divide-gray-200 dark:divide-gray-700">
-      {users.map((user) => (
-        <Table.Row
-          key={user.id}
-          className="transition duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white flex items-center space-x-3">
-            <img
-              className="w-[36px] h-[36px] rounded-full object-cover border border-gray-300 dark:border-gray-600"
-              src={user.profilePic}
-              alt="avatar"
-            />
-            <span>
-              {user.firstName} {user.lastName}
-            </span>
-          </Table.Cell>
-          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
-            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
-              {user.meterID}
-            </span>
-          </Table.Cell>
-          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
-            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
-              {user.connection}
-            </span>
-          </Table.Cell>
-          <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                user.status === "active"
-                  ? "bg-green-100 text-green-800 dark:bg-green-200"
-                  : "bg-red-100 text-red-800 dark:bg-red-200"
-              }`}
-            >
-              <span
-                className={`mr-1 h-2 w-2 rounded-full ${
-                  user.status === "active" ? "bg-green-500" : "bg-red-500"
-                }`}
-              ></span>
-              {user.status === "active" ? "Active" : "Disconnected"}
-            </span>
-          </Table.Cell>
-          <Table.Cell className="p-4 flex flex-wrap gap-2">
-            {localStorage.getItem("role") === "meter" && (
-              <BillModal
-                userId={user.id}
-                user={user}
-                connection={user.connection}
+      {users.map((user) => {
+        const unpaidMonths = getUnpaidMonthsCount(user.id);
+        const hasWarning = unpaidMonths >= 3;
+        
+        return (
+          <Table.Row
+            key={user.id}
+            className={`transition duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+              hasWarning ? "bg-red-50 dark:bg-red-900/20" : ""
+            }`}
+          >
+            <Table.Cell className="p-4 text-base font-medium text-gray-900 dark:text-white flex items-center space-x-3">
+              <img
+                className="w-[36px] h-[36px] rounded-full object-cover border border-gray-300 dark:border-gray-600"
+                src={user.profilePic}
+                alt="avatar"
               />
-            )}
-            {localStorage.getItem("role") !== "meter" && (
-              <>
+              <span>
+                {user.firstName} {user.lastName}
+              </span>
+            </Table.Cell>
+            <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
+                {user.meterID}
+              </span>
+            </Table.Cell>
+            <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-medium">
+                {user.connection}
+              </span>
+            </Table.Cell>
+            <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  user.status === "active"
+                    ? "bg-green-100 text-green-800 dark:bg-green-200"
+                    : "bg-red-100 text-red-800 dark:bg-red-200"
+                }`}
+              >
+                <span
+                  className={`mr-1 h-2 w-2 rounded-full ${
+                    user.status === "active" ? "bg-green-500" : "bg-red-500"
+                  }`}
+                ></span>
+                {user.status === "active" ? "Active" : "Disconnected"}
+              </span>
+            </Table.Cell>
+            <Table.Cell className="p-4 text-base text-gray-900 dark:text-white">
+              <div className="flex items-center space-x-2">
+                <span className={`font-semibold ${hasWarning ? "text-red-600 dark:text-red-400" : ""}`}>
+                  {unpaidMonths}
+                </span>
+                {hasWarning && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    ⚠️ WARNING
+                  </span>
+                )}
+              </div>
+            </Table.Cell>
+            <Table.Cell className="p-4 flex flex-wrap gap-2">
+              {localStorage.getItem("role") === "meter" && (
                 <BillModal
                   userId={user.id}
                   user={user}
                   connection={user.connection}
                 />
-                <PayBillingModal user={user} userId={user.id} />
-              </>
-            )}
-          </Table.Cell>
-        </Table.Row>
-      ))}
+              )}
+              {localStorage.getItem("role") !== "meter" && (
+                <>
+                  <BillModal
+                    userId={user.id}
+                    user={user}
+                    connection={user.connection}
+                  />
+                  <PayBillingModal user={user} userId={user.id} />
+                </>
+              )}
+            </Table.Cell>
+          </Table.Row>
+        );
+      })}
     </Table.Body>
   </Table>
 );
